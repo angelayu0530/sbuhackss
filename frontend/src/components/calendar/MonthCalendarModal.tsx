@@ -1,5 +1,5 @@
-import { Modal, Group, Text, Grid, Card, Stack, Divider, ActionIcon, Box, Button } from "@mantine/core";
-import { IconCalendar, IconChevronLeft, IconChevronRight, IconCalendarEvent, IconX } from "@tabler/icons-react";
+import { Modal, Group, Text, Grid, Card, Stack, Divider, ActionIcon, Box, Button, TextInput, Textarea, Select, Collapse } from "@mantine/core";
+import { IconCalendar, IconChevronLeft, IconChevronRight, IconCalendarEvent, IconX, IconPlus, IconMapPin, IconClock, IconRepeat } from "@tabler/icons-react";
 import dayjs, { Dayjs } from "dayjs";
 import { useEffect, useState } from "react";
 import type { CalendarEvent } from "../../lib/types";
@@ -22,6 +22,15 @@ export default function MonthCalendarModal({
   // Selected day for detailed view
   const [selectedDay, setSelectedDay] = useState<Dayjs | null>(null);
 
+  // Event creation form state
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [eventName, setEventName] = useState("");
+  const [eventLocation, setEventLocation] = useState("");
+  const [eventStartTime, setEventStartTime] = useState("09:00");
+  const [eventEndTime, setEventEndTime] = useState("10:00");
+  const [eventRepeat, setEventRepeat] = useState<string | null>("none");
+  const [eventNotes, setEventNotes] = useState("");
+
   // Track previous opened state to detect when modal opens
   const [prevOpened, setPrevOpened] = useState(opened);
 
@@ -30,9 +39,53 @@ export default function MonthCalendarModal({
     if (opened && !prevOpened) {
       setMonth(refMonth.startOf("month"));
       setSelectedDay(null);
+      setShowCreateForm(false);
     }
     setPrevOpened(opened);
   }, [opened, prevOpened, refMonth]);
+
+  // Reset form when changing days
+  useEffect(() => {
+    setShowCreateForm(false);
+    setEventName("");
+    setEventLocation("");
+    setEventStartTime("09:00");
+    setEventEndTime("10:00");
+    setEventRepeat("none");
+    setEventNotes("");
+  }, [selectedDay]);
+
+  const handleCreateEvent = () => {
+    if (!selectedDay || !eventName) return;
+
+    // Parse time strings
+    const [startHour, startMin] = eventStartTime.split(":").map(Number);
+    const [endHour, endMin] = eventEndTime.split(":").map(Number);
+
+    const newEvent: CalendarEvent = {
+      id: `event-${Date.now()}`,
+      title: eventName,
+      start: selectedDay.hour(startHour).minute(startMin),
+      end: selectedDay.hour(endHour).minute(endMin),
+    };
+
+    // TODO: Here you would typically call an API to save the event
+    console.log("Creating event:", {
+      ...newEvent,
+      location: eventLocation,
+      repeat: eventRepeat,
+      notes: eventNotes,
+    });
+
+    // Reset form
+    setShowCreateForm(false);
+    setEventName("");
+    setEventLocation("");
+    setEventStartTime("09:00");
+    setEventEndTime("10:00");
+    setEventRepeat("none");
+    setEventNotes("");
+  };
 
   const grid = getMonthGrid(month);
   const byDay = groupByDay(events);
@@ -239,6 +292,90 @@ export default function MonthCalendarModal({
             </Group>
 
             <Divider mb="md" />
+
+            {/* Create Event Button */}
+            <Button
+              fullWidth
+              leftSection={<IconPlus size={18} />}
+              variant={showCreateForm ? "light" : "filled"}
+              mb="md"
+              onClick={() => setShowCreateForm(!showCreateForm)}
+            >
+              {showCreateForm ? "Cancel" : "Create Event"}
+            </Button>
+
+            {/* Create Event Form */}
+            <Collapse in={showCreateForm}>
+              <Card withBorder padding="md" radius="md" mb="md" style={{ background: "var(--mantine-color-gray-0)" }}>
+                <Stack gap="sm">
+                  <TextInput
+                    label="Event Name"
+                    placeholder="Enter event name"
+                    value={eventName}
+                    onChange={(e) => setEventName(e.target.value)}
+                    required
+                    leftSection={<IconCalendarEvent size={16} />}
+                  />
+
+                  <TextInput
+                    label="Location"
+                    placeholder="Enter location (optional)"
+                    value={eventLocation}
+                    onChange={(e) => setEventLocation(e.target.value)}
+                    leftSection={<IconMapPin size={16} />}
+                  />
+
+                  <Group grow>
+                    <TextInput
+                      label="Start Time"
+                      type="time"
+                      value={eventStartTime}
+                      onChange={(e) => setEventStartTime(e.target.value)}
+                      leftSection={<IconClock size={16} />}
+                    />
+                    <TextInput
+                      label="End Time"
+                      type="time"
+                      value={eventEndTime}
+                      onChange={(e) => setEventEndTime(e.target.value)}
+                      leftSection={<IconClock size={16} />}
+                    />
+                  </Group>
+
+                  <Select
+                    label="Repeat"
+                    placeholder="Select repeat option"
+                    value={eventRepeat}
+                    onChange={setEventRepeat}
+                    leftSection={<IconRepeat size={16} />}
+                    data={[
+                      { value: "none", label: "Does not repeat" },
+                      { value: "daily", label: "Daily" },
+                      { value: "weekly", label: "Weekly" },
+                      { value: "monthly", label: "Monthly" },
+                      { value: "yearly", label: "Yearly" },
+                      { value: "weekdays", label: "Every weekday (Mon-Fri)" },
+                    ]}
+                  />
+
+                  <Textarea
+                    label="Notes"
+                    placeholder="Add notes or description (optional)"
+                    value={eventNotes}
+                    onChange={(e) => setEventNotes(e.target.value)}
+                    minRows={3}
+                  />
+
+                  <Button
+                    fullWidth
+                    onClick={handleCreateEvent}
+                    disabled={!eventName}
+                  >
+                    Save Event
+                  </Button>
+                </Stack>
+              </Card>
+            </Collapse>
 
             {/* Timeline view */}
             <Box>
