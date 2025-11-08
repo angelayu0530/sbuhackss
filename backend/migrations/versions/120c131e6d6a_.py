@@ -1,8 +1,8 @@
-"""Initial migration with all models
+"""empty message
 
-Revision ID: 0cd44b943958
+Revision ID: 120c131e6d6a
 Revises: 
-Create Date: 2025-11-08 09:46:57.360761
+Create Date: 2025-11-08 13:51:25.232768
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '0cd44b943958'
+revision = '120c131e6d6a'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -34,11 +34,24 @@ def upgrade():
     sa.Column('password_hash', sa.String(length=256), nullable=False),
     sa.Column('name', sa.String(length=100), nullable=False),
     sa.Column('phone', sa.String(length=20), nullable=True),
-    sa.Column('role', sa.Enum('PATIENT', 'CARETAKER', 'DOCTOR', name='userrole'), nullable=False),
     sa.Column('active', sa.Boolean(), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.PrimaryKeyConstraint('uid'),
     sa.UniqueConstraint('email')
+    )
+    op.create_table('patients',
+    sa.Column('pid', sa.Integer(), nullable=False),
+    sa.Column('caretaker_id', sa.Integer(), nullable=False),
+    sa.Column('name', sa.String(length=100), nullable=False),
+    sa.Column('age', sa.Integer(), nullable=True),
+    sa.Column('gender', sa.String(length=20), nullable=True),
+    sa.Column('medical_summary', sa.Text(), nullable=True),
+    sa.Column('emergency_contact', sa.Text(), nullable=True),
+    sa.Column('active', sa.Boolean(), nullable=True),
+    sa.Column('created_at', sa.DateTime(), nullable=True),
+    sa.ForeignKeyConstraint(['caretaker_id'], ['users.uid'], ),
+    sa.PrimaryKeyConstraint('pid'),
+    sa.UniqueConstraint('caretaker_id')
     )
     op.create_table('appointments',
     sa.Column('aid', sa.Integer(), nullable=False),
@@ -50,20 +63,8 @@ def upgrade():
     sa.Column('active', sa.Boolean(), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['doctor_id'], ['users.uid'], ),
-    sa.ForeignKeyConstraint(['patient_id'], ['users.uid'], ),
+    sa.ForeignKeyConstraint(['patient_id'], ['patients.pid'], ),
     sa.PrimaryKeyConstraint('aid')
-    )
-    op.create_table('caretaker_patient',
-    sa.Column('cpid', sa.Integer(), nullable=False),
-    sa.Column('caretaker_id', sa.Integer(), nullable=False),
-    sa.Column('patient_id', sa.Integer(), nullable=False),
-    sa.Column('relationship', sa.String(length=50), nullable=True),
-    sa.Column('primary_contact', sa.Boolean(), nullable=True),
-    sa.Column('active', sa.Boolean(), nullable=True),
-    sa.Column('created_at', sa.DateTime(), nullable=True),
-    sa.ForeignKeyConstraint(['caretaker_id'], ['users.uid'], ),
-    sa.ForeignKeyConstraint(['patient_id'], ['users.uid'], ),
-    sa.PrimaryKeyConstraint('cpid')
     )
     op.create_table('conditions',
     sa.Column('cid', sa.Integer(), nullable=False),
@@ -73,7 +74,7 @@ def upgrade():
     sa.Column('note', sa.Text(), nullable=True),
     sa.Column('active', sa.Boolean(), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=True),
-    sa.ForeignKeyConstraint(['patient_id'], ['users.uid'], ),
+    sa.ForeignKeyConstraint(['patient_id'], ['patients.pid'], ),
     sa.PrimaryKeyConstraint('cid')
     )
     op.create_table('medications',
@@ -87,45 +88,9 @@ def upgrade():
     sa.Column('prescriber_id', sa.Integer(), nullable=True),
     sa.Column('active', sa.Boolean(), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=True),
-    sa.ForeignKeyConstraint(['patient_id'], ['users.uid'], ),
+    sa.ForeignKeyConstraint(['patient_id'], ['patients.pid'], ),
     sa.ForeignKeyConstraint(['prescriber_id'], ['users.uid'], ),
     sa.PrimaryKeyConstraint('mid')
-    )
-    op.create_table('messages',
-    sa.Column('mid', sa.Integer(), nullable=False),
-    sa.Column('thread_id', sa.String(length=50), nullable=False),
-    sa.Column('sender_id', sa.Integer(), nullable=False),
-    sa.Column('role', sa.String(length=20), nullable=True),
-    sa.Column('message_text', sa.Text(), nullable=False),
-    sa.Column('active', sa.Boolean(), nullable=True),
-    sa.Column('created_at', sa.DateTime(), nullable=True),
-    sa.ForeignKeyConstraint(['sender_id'], ['users.uid'], ),
-    sa.PrimaryKeyConstraint('mid')
-    )
-    op.create_table('notes',
-    sa.Column('nid', sa.Integer(), nullable=False),
-    sa.Column('patient_id', sa.Integer(), nullable=False),
-    sa.Column('author_id', sa.Integer(), nullable=False),
-    sa.Column('content', sa.Text(), nullable=False),
-    sa.Column('active', sa.Boolean(), nullable=True),
-    sa.Column('created_at', sa.DateTime(), nullable=True),
-    sa.ForeignKeyConstraint(['author_id'], ['users.uid'], ),
-    sa.ForeignKeyConstraint(['patient_id'], ['users.uid'], ),
-    sa.PrimaryKeyConstraint('nid')
-    )
-    op.create_table('profiles',
-    sa.Column('pid', sa.Integer(), nullable=False),
-    sa.Column('user_id', sa.Integer(), nullable=False),
-    sa.Column('age', sa.Integer(), nullable=True),
-    sa.Column('gender', sa.Enum('WOMAN', 'MAN', 'OTHER', name='gender'), nullable=True),
-    sa.Column('medical_summary', sa.Text(), nullable=True),
-    sa.Column('conditions', sa.Text(), nullable=True),
-    sa.Column('medications', sa.Text(), nullable=True),
-    sa.Column('emergency_contact', sa.Text(), nullable=True),
-    sa.Column('active', sa.Boolean(), nullable=True),
-    sa.ForeignKeyConstraint(['user_id'], ['users.uid'], ),
-    sa.PrimaryKeyConstraint('pid'),
-    sa.UniqueConstraint('user_id')
     )
     op.create_table('recommendations',
     sa.Column('rid', sa.Integer(), nullable=False),
@@ -134,22 +99,22 @@ def upgrade():
     sa.Column('sources', sa.Text(), nullable=True),
     sa.Column('active', sa.Boolean(), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=True),
-    sa.ForeignKeyConstraint(['patient_id'], ['users.uid'], ),
+    sa.ForeignKeyConstraint(['patient_id'], ['patients.pid'], ),
     sa.PrimaryKeyConstraint('rid')
     )
     op.create_table('tasks',
     sa.Column('tid', sa.Integer(), nullable=False),
     sa.Column('patient_id', sa.Integer(), nullable=False),
-    sa.Column('assigned_by_id', sa.Integer(), nullable=False),
+    sa.Column('caretaker_id', sa.Integer(), nullable=False),
     sa.Column('title', sa.String(length=200), nullable=False),
     sa.Column('description', sa.Text(), nullable=True),
     sa.Column('due_at', sa.DateTime(), nullable=True),
-    sa.Column('status', sa.Enum('PENDING', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED', name='taskstatus'), nullable=True),
-    sa.Column('priority', sa.Enum('LOW', 'MEDIUM', 'HIGH', 'URGENT', name='priority'), nullable=True),
+    sa.Column('status', sa.Enum('PENDING', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED', name='taskstatus'), nullable=False),
+    sa.Column('priority', sa.Enum('LOW', 'MEDIUM', 'HIGH', 'URGENT', name='priority'), nullable=False),
     sa.Column('active', sa.Boolean(), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=True),
-    sa.ForeignKeyConstraint(['assigned_by_id'], ['users.uid'], ),
-    sa.ForeignKeyConstraint(['patient_id'], ['users.uid'], ),
+    sa.ForeignKeyConstraint(['caretaker_id'], ['users.uid'], ),
+    sa.ForeignKeyConstraint(['patient_id'], ['patients.pid'], ),
     sa.PrimaryKeyConstraint('tid')
     )
     op.create_table('reminders',
@@ -160,7 +125,7 @@ def upgrade():
     sa.Column('remind_at', sa.DateTime(), nullable=False),
     sa.Column('sent', sa.Boolean(), nullable=True),
     sa.Column('active', sa.Boolean(), nullable=True),
-    sa.ForeignKeyConstraint(['patient_id'], ['users.uid'], ),
+    sa.ForeignKeyConstraint(['patient_id'], ['patients.pid'], ),
     sa.ForeignKeyConstraint(['task_id'], ['tasks.tid'], ),
     sa.PrimaryKeyConstraint('rid')
     )
@@ -172,13 +137,10 @@ def downgrade():
     op.drop_table('reminders')
     op.drop_table('tasks')
     op.drop_table('recommendations')
-    op.drop_table('profiles')
-    op.drop_table('notes')
-    op.drop_table('messages')
     op.drop_table('medications')
     op.drop_table('conditions')
-    op.drop_table('caretaker_patient')
     op.drop_table('appointments')
+    op.drop_table('patients')
     op.drop_table('users')
     op.drop_table('resources')
     # ### end Alembic commands ###
