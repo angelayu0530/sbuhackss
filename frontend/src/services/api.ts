@@ -21,6 +21,17 @@ export interface PatientData {
   emergency_contact?: string;
 }
 
+export interface TaskData {
+  patient_id: number;
+  caretaker_id: number;
+  title: string;
+  description?: string;
+  due_at?: string;
+  status?: "pending" | "in_progress" | "completed" | "cancelled";
+  priority?: "low" | "medium" | "high" | "urgent";
+  active?: boolean;
+}
+
 export const authAPI = {
   signup: async (data: SignupData) => {
     const res = await fetch(`${API_BASE}/auth/signup`, {
@@ -77,6 +88,54 @@ export const patientAPI = {
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(data),
+    });
+    return res.json();
+  },
+};
+
+export const tasksAPI = {
+  create: async (data: TaskData, token: string) => {
+    const res = await fetch(`${API_BASE}/tasks`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+    return res.json();
+  },
+
+  get: async (tid: number, token: string) => {
+    const res = await fetch(`${API_BASE}/tasks/${tid}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return res.json();
+  },
+
+  list: async (token: string) => {
+    const res = await fetch(`${API_BASE}/tasks`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return res.json();
+  },
+
+  update: async (tid: number, data: Partial<TaskData>, token: string) => {
+    const res = await fetch(`${API_BASE}/tasks/${tid}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+    return res.json();
+  },
+
+  delete: async (tid: number, token: string) => {
+    const res = await fetch(`${API_BASE}/tasks/${tid}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
     });
     return res.json();
   },

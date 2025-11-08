@@ -4,8 +4,20 @@ from datetime import datetime
 
 tasks_bp = Blueprint('tasks', __name__)
 
-@tasks_bp.route('/', methods=['POST'])
+# Handle OPTIONS requests for CORS preflight
+@tasks_bp.before_request
+def handle_preflight():
+    if request.method == "OPTIONS":
+        response = jsonify({'status': 'ok'})
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add("Access-Control-Allow-Headers", "Content-Type,Authorization")
+        response.headers.add("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS")
+        return response, 200
+
+@tasks_bp.route('/', methods=['POST', 'OPTIONS'])
 def create_task():
+    if request.method == 'OPTIONS':
+        return '', 200
     data = request.get_json()
     required_fields = ['patient_id', 'caretaker_id', 'title']
     for field in required_fields:
@@ -38,8 +50,10 @@ def create_task():
     db.session.commit()
     return jsonify({'message': 'Task created', 'tid': task.tid}), 201
 
-@tasks_bp.route('/<int:tid>', methods=['GET'])
+@tasks_bp.route('/<int:tid>', methods=['GET', 'OPTIONS'])
 def get_task(tid):
+    if request.method == 'OPTIONS':
+        return '', 200
     task = Task.query.get(tid)
     if not task:
         return jsonify({'error': 'Task not found'}), 404
@@ -56,8 +70,10 @@ def get_task(tid):
         'created_at': task.created_at
     })
 
-@tasks_bp.route('/', methods=['GET'])
+@tasks_bp.route('/', methods=['GET', 'OPTIONS'])
 def list_tasks():
+    if request.method == 'OPTIONS':
+        return '', 200
     tasks = Task.query.all()
     return jsonify([
         {
@@ -74,8 +90,10 @@ def list_tasks():
         } for t in tasks
     ])
 
-@tasks_bp.route('/<int:tid>', methods=['PUT'])
+@tasks_bp.route('/<int:tid>', methods=['PUT', 'OPTIONS'])
 def update_task(tid):
+    if request.method == 'OPTIONS':
+        return '', 200
     task = Task.query.get(tid)
     if not task:
         return jsonify({'error': 'Task not found'}), 404
@@ -96,8 +114,10 @@ def update_task(tid):
     db.session.commit()
     return jsonify({'message': 'Task updated'})
 
-@tasks_bp.route('/<int:tid>', methods=['DELETE'])
+@tasks_bp.route('/<int:tid>', methods=['DELETE', 'OPTIONS'])
 def delete_task(tid):
+    if request.method == 'OPTIONS':
+        return '', 200
     task = Task.query.get(tid)
     if not task:
         return jsonify({'error': 'Task not found'}), 404
