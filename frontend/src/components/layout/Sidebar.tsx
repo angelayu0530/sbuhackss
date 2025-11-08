@@ -1,4 +1,4 @@
-import { Stack, Accordion, Card, Text, Group, Divider, Button } from "@mantine/core";
+import { Stack, Accordion, Card, Text, Group, Divider, Button, Box } from "@mantine/core";
 import { IconUser, IconStethoscope, IconPhone, IconMapPin, IconSettings } from "@tabler/icons-react";
 import type { Lang } from "../../lib/types";
 import { tDict } from "../../lib/i18n";
@@ -14,7 +14,19 @@ export default function Sidebar({
 }) {
   const t = tDict[lang];
   return (
-    <Stack gap="md" style={{ position: "sticky", top: 88, height: "calc(100vh - 104px)" }}>
+      <Box
+      component="aside"
+      style={{
+        position: "fixed",
+        left: 0,
+        top: 88,
+        width: 280,
+        height: "calc(100vh - 104px)",
+        padding: 12,
+        overflowY: "auto",
+      }}
+    >
+          <Stack gap="md" style={{ position: "sticky", top: 88, height: "calc(100vh - 104px)" }}>
       <Accordion multiple defaultValue={["profile", "doctor"]} radius="md">
         <Accordion.Item value="profile">
           <Accordion.Control icon={<IconUser size={18} />}>{t.patientInfo}</Accordion.Control>
@@ -52,5 +64,7 @@ export default function Sidebar({
         {t.settings}
       </Button>
     </Stack>
+    </Box>
+
   );
 }

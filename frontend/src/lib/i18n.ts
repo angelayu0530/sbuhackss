@@ -2,7 +2,6 @@ import type { Lang } from "./types";
 
 export const tDict = {
   en: {
-    caregiverDashboard: "Caregiver Dashboard",
     welcome: "Welcome, seawolf",
     doctorInfo: "Doctor Information",
     patientInfo: "My Patient's Profile",
@@ -18,7 +17,6 @@ export const tDict = {
     reminders: "Reminders",
   },
   zh: {
-    caregiverDashboard: "照护者仪表板",
     welcome: "欢迎，海狼",
     doctorInfo: "医生信息",
     patientInfo: "我的资料",
@@ -34,7 +32,6 @@ export const tDict = {
     reminders: "提醒",
   },
   es: {
-    caregiverDashboard: "Panel del Cuidador",
     welcome: "Bienvenido/a, seawolf",
     doctorInfo: "Información del Médico",
     patientInfo: "Mi Perfil",
