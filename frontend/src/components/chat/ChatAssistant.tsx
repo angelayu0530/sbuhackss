@@ -1,52 +1,52 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Card, Group, ThemeIcon, Title, Divider, ScrollArea, Stack, Text, TextInput, Button } from "@mantine/core";
-import { IconRobot, IconSend } from "@tabler/icons-react";
+import { Card, Group, ThemeIcon, Title, Divider, ScrollArea, Stack, Text, TextInput, Button, ActionIcon } from "@mantine/core";
+import { IconRobot, IconSend, IconTrash } from "@tabler/icons-react";
 import type { Lang } from "../../lib/types";
 import { tDict } from "../../lib/i18n";
+import { chatAPI } from "../../services/api";
 
 type Msg = { from: "ai" | "user"; text: string };
 
 export default function ChatAssistant({ lang }: { lang: Lang }) {
   const t = useMemo(() => tDict[lang], [lang]);
-  const [messages, setMessages] = useState<Msg[]>([
-    { from: "ai", text: "Hello! I can translate, simplify terms, and draft messages to your doctor." },
-  ]);
+  const [messages, setMessages] = useState<Msg[]>(() => {
+    const saved = localStorage.getItem("chatHistory");
+    return saved ? JSON.parse(saved) : [{ from: "ai", text: "Hello! I can translate, simplify terms, and draft messages to your doctor." }];
+  });
   const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const chatRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
+    localStorage.setItem("chatHistory", JSON.stringify(messages));
     chatRef.current?.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
   }, [messages]);
 
   const sendMessage = async (text?: string) => {
     const msg = (text ?? input).trim();
-    if (!msg) return;
+    if (!msg || isLoading) return;
     setMessages((m) => [...m, { from: "user", text: msg }]);
     setInput("");
+    setIsLoading(true);
     try {
-      const res = await fetch("/api/echo", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: msg, lang }),
-      });
-      const data = await res.json();
-      setMessages((m) => [...m, { from: "ai", text: JSON.stringify(data) }]);
-    } catch {
-      setTimeout(() => {
-        setMessages((m) => [
-          ...m,
-          {
-            from: "ai",
-            text:
-              lang === "en"
-                ? "Here’s a demo reply: “Your message was received and translated.”"
-                : lang === "zh"
-                ? "示例回复：“已接收并完成翻译。”"
-                : "Respuesta de ejemplo: “Tu mensaje fue recibido y traducido.”",
-          },
-        ]);
-      }, 500);
+      const data = await chatAPI.sendMessage(msg);
+      if (data.reply) {
+        setMessages((m) => [...m, { from: "ai", text: data.reply }]);
+      } else if (data.error) {
+        setMessages((m) => [...m, { from: "ai", text: `Error: ${data.error}` }]);
+      }
+    } catch (error) {
+      console.error("Chat error:", error);
+      setMessages((m) => [...m, { from: "ai", text: "Sorry, I couldn't process that. Please try again." }]);
+    } finally {
+      setIsLoading(false);
     }
+  };
+
+  const clearChat = async () => {
+    await chatAPI.clearHistory();
+    setMessages([{ from: "ai", text: "Hello! I can translate, simplify terms, and draft messages to your doctor." }]);
+    localStorage.setItem("chatHistory", JSON.stringify([{ from: "ai", text: "Hello! I can translate, simplify terms, and draft messages to your doctor." }]));
   };
 
   return (
@@ -58,6 +58,9 @@ export default function ChatAssistant({ lang }: { lang: Lang }) {
           </ThemeIcon>
           <Title order={4}>{t.aiAssistant}</Title>
         </Group>
+        <ActionIcon variant="subtle" color="red" onClick={clearChat} title="Clear chat history">
+          <IconTrash size={18} />
+        </ActionIcon>
       </Group>
       <Divider my="sm" />
       <ScrollArea h={420} viewportRef={chatRef} style={{ border: "1px solid var(--mantine-color-gray-3)", borderRadius: 12 }}>
@@ -87,9 +90,10 @@ export default function ChatAssistant({ lang }: { lang: Lang }) {
           value={input}
           onChange={(e) => setInput(e.currentTarget.value)}
           onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+          disabled={isLoading}
           style={{ flex: 1 }}
         />
-        <Button leftSection={<IconSend size={16} />} onClick={() => sendMessage()}>
+        <Button leftSection={<IconSend size={16} />} onClick={() => sendMessage()} loading={isLoading}>
           Send
         </Button>
       </Group>

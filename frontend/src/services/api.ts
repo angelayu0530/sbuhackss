@@ -140,3 +140,23 @@ export const tasksAPI = {
     return res.json();
   },
 };
+
+export const chatAPI = {
+  sendMessage: async (message: string) => {
+    const res = await fetch(`${API_BASE}/chat/gemini`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message }),
+    });
+    return res.json();
+  },
+
+  clearHistory: async () => {
+    const res = await fetch(`${API_BASE}/chat/gemini`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ clearHistory: true }),
+    });
+    return res.json();
+  },
+};
