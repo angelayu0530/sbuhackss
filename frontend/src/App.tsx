@@ -2,6 +2,9 @@ import { useEffect, useMemo, useState } from "react";
 import { AppShell, Container, Grid, Card, Tabs } from "@mantine/core";
 import dayjs from "dayjs";
 import { HeaderBar, Sidebar, WelcomeCard, WeekCalendar, MonthCalendarModal, RemindersTab, CommunityTab, ChatAssistant } from "./components";
+import LoginPage from "./components/LoginPage";
+import SignupPage from "./components/SignupPage";
+import { AuthContext } from "./components/AuthContext";
 import type { Lang } from "./lib/types";
 import type { CalendarEvent, Task } from "./lib/types";
 import { tDict } from "./lib/i18n";
@@ -56,51 +59,74 @@ export default function App() {
   ]);
 
   const [calendarOpen, setCalendarOpen] = useState(false);
+  const [token, setToken] = useState<string | null>(null);
+  const [user, setUser] = useState<any>(null);
+  const [showSignup, setShowSignup] = useState(false);
+
+  if (!token) {
+    return showSignup ? (
+      <>
+        <SignupPage onAuth={(t, u) => { setToken(t); setUser(u); }} />
+        <div style={{ textAlign: "center", marginTop: 16 }}>
+          <button onClick={() => setShowSignup(false)}>Already have an account? Log in</button>
+        </div>
+      </>
+    ) : (
+      <>
+        <LoginPage onAuth={(t, u) => { setToken(t); setUser(u); }} />
+        <div style={{ textAlign: "center", marginTop: 16 }}>
+          <button onClick={() => setShowSignup(true)}>Don't have an account? Sign up</button>
+        </div>
+      </>
+    );
+  }
 
   return (
-    <AppShell header={{ height: 64 }} padding="md">
-      <HeaderBar lang={lang} setLang={setLang} apiStatus={apiStatus} />
+    <AuthContext.Provider value={{ token, user, setToken, setUser }}>
+      <AppShell header={{ height: 64 }} padding="md">
+        <HeaderBar lang={lang} setLang={setLang} apiStatus={apiStatus} />
 
-      <AppShell.Main>
-        <Container fluid p={0} style={{ maxWidth: 1400, marginInline: "auto" }}>
-          <Grid gutter="md">
-            <Grid.Col span={{ base: 12, md: 2 }}>
-              <Sidebar lang={lang} patient={patient} doctor={doctor} />
-            </Grid.Col>
+        <AppShell.Main>
+          <Container fluid p={0} style={{ maxWidth: 1400, marginInline: "auto" }}>
+            <Grid gutter="md">
+              <Grid.Col span={{ base: 12, md: 2 }}>
+                <Sidebar lang={lang} patient={patient} doctor={doctor} />
+              </Grid.Col>
 
-            <Grid.Col span={{ base: 12, md: 7 }}>
-              <WelcomeCard lang={lang} setLang={setLang} />
-              <WeekCalendar lang={lang} events={events} onOpenMonth={() => setCalendarOpen(true)} />
+              <Grid.Col span={{ base: 12, md: 7 }}>
+                <WelcomeCard lang={lang} setLang={setLang} />
+                <WeekCalendar lang={lang} events={events} onOpenMonth={() => setCalendarOpen(true)} />
 
-              <Card withBorder radius="md" shadow="sm" p="lg" mt="md">
-                <Tabs defaultValue="reminders" keepMounted={false}>
-                  <Tabs.List>
-                    <Tabs.Tab value="reminders" leftSection={<IconChecklist size={16} />}>
-                      {t.reminders}
-                    </Tabs.Tab>
-                    <Tabs.Tab value="community" leftSection={<IconWorld size={16} />}>
-                      {t.communityEvents}
-                    </Tabs.Tab>
-                  </Tabs.List>
+                <Card withBorder radius="md" shadow="sm" p="lg" mt="md">
+                  <Tabs defaultValue="reminders" keepMounted={false}>
+                    <Tabs.List>
+                      <Tabs.Tab value="reminders" leftSection={<IconChecklist size={16} />}>
+                        {t.reminders}
+                      </Tabs.Tab>
+                      <Tabs.Tab value="community" leftSection={<IconWorld size={16} />}>
+                        {t.communityEvents}
+                      </Tabs.Tab>
+                    </Tabs.List>
 
-                  <Tabs.Panel value="reminders" pt="md">
-                    <RemindersTab tasks={tasks} setTasks={setTasks} />
-                  </Tabs.Panel>
-                  <Tabs.Panel value="community" pt="md">
-                    <CommunityTab />
-                  </Tabs.Panel>
-                </Tabs>
-              </Card>
-            </Grid.Col>
+                    <Tabs.Panel value="reminders" pt="md">
+                      <RemindersTab tasks={tasks} setTasks={setTasks} />
+                    </Tabs.Panel>
+                    <Tabs.Panel value="community" pt="md">
+                      <CommunityTab />
+                    </Tabs.Panel>
+                  </Tabs>
+                </Card>
+              </Grid.Col>
 
-            <Grid.Col span={{ base: 12, md: 3 }}>
-              <ChatAssistant lang={lang} />
-            </Grid.Col>
-          </Grid>
-        </Container>
-      </AppShell.Main>
+              <Grid.Col span={{ base: 12, md: 3 }}>
+                <ChatAssistant lang={lang} />
+              </Grid.Col>
+            </Grid>
+          </Container>
+        </AppShell.Main>
 
-      <MonthCalendarModal opened={calendarOpen} onClose={() => setCalendarOpen(false)} events={events} />
-    </AppShell>
+        <MonthCalendarModal opened={calendarOpen} onClose={() => setCalendarOpen(false)} events={events} />
+      </AppShell>
+    </AuthContext.Provider>
   );
 }

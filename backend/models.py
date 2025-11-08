@@ -2,7 +2,10 @@ from flask_sqlalchemy import SQLAlchemy
 import enum
 from db import db
 from datetime import datetime
+
 from werkzeug.security import generate_password_hash, check_password_hash
+import os
+os.environ["WERKZEUG_PASSWORD_HASH"] = "pbkdf2:sha256"
 
 
 class User(db.Model):
@@ -17,7 +20,7 @@ class User(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     def set_password(self, password):
-        self.password_hash = generate_password_hash(password)
+        self.password_hash = generate_password_hash(password, method="pbkdf2:sha256")
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
