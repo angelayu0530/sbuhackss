@@ -4,7 +4,7 @@ import { HOURS_END, HOURS_START } from "./types";
 
 export function getMonthGrid(ref: Dayjs) {
   const first = ref.startOf("month");
-  const start = first.startOf("week").add(1, "day"); // Monday
+  const start = first.startOf("week"); // Sunday
   return Array.from({ length: 6 }, (_, r) =>
     Array.from({ length: 7 }, (_, c) => start.add(r * 7 + c, "day"))
   );
