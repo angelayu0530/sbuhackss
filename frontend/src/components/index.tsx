@@ -1,8 +1,8 @@
-export { default as HeaderBar } from "./HeaderBar";
-export { default as Sidebar } from "./Sidebar";
-export { default as WelcomeCard } from "./WelcomeCard";
-export { default as WeekCalendar } from "./WeekCalendar";
-export { default as MonthCalendarModal } from "./MonthCalendarModal";
-export { default as RemindersTab } from "./RemindersTab";
-export { default as CommunityTab } from "./CommunityTab";
-export { default as ChatAssistant } from "./ChatAssistant";
+export { default as HeaderBar } from "./layout/HeaderBar";
+export { default as Sidebar } from "./layout/Sidebar";
+export { default as WelcomeCard } from "./layout/WelcomeCard";
+export { default as WeekCalendar } from "./calendar/WeekCalendar";
+export { default as MonthCalendarModal } from "./calendar/MonthCalendarModal";
+export { default as RemindersTab } from "./community/RemindersTab";
+export { default as CommunityTab } from "./community/CommunityTab";
+export { default as ChatAssistant } from "./chat/ChatAssistant";

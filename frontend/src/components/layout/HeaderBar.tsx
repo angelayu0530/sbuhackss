@@ -1,6 +1,6 @@
 import { AppShell, Group, Title, Text, ThemeIcon, Box, Button, Badge } from "@mantine/core";
-import type { Lang } from "../lib/types";
-import { tDict, languages } from "../lib/i18n";
+import type { Lang } from "../../lib/types";
+import { tDict, languages } from "../../lib/i18n";
 
 export default function HeaderBar({
   lang,

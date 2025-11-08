@@ -1,11 +1,11 @@
 import { Card, Group, ThemeIcon, Title, Button, Divider, Box, Text } from "@mantine/core";
 import { IconCalendar, IconArrowsMaximize } from "@tabler/icons-react";
 import dayjs, { Dayjs } from "dayjs";
-import type { Lang } from "../lib/types";
-import type { CalendarEvent } from "../lib/types";
-import { HOURS_START, HOURS_END, hoursArray, minutesFromDayStart } from "../lib/types";
-import { tDict } from "../lib/i18n";
-import { groupByDay, computeColumns } from "../lib/calendar";
+import type { Lang } from "../../lib/types";
+import type { CalendarEvent } from "../../lib/types";
+import { HOURS_START, HOURS_END, hoursArray, minutesFromDayStart } from "../../lib/types";
+import { tDict } from "../../lib/i18n";
+import { groupByDay, computeColumns } from "../../lib/calendar";
 
 export default function WeekCalendar({
   lang,

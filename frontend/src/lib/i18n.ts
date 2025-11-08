@@ -5,7 +5,7 @@ export const tDict = {
     caregiverDashboard: "Caregiver Dashboard",
     welcome: "Welcome, seawolf",
     doctorInfo: "Doctor Information",
-    patientInfo: "My Profile",
+    patientInfo: "My Patient's Profile",
     communityEvents: "Community Events",
     upcomingAppointments: "This Week",
     addToCalendar: "Full screen",

@@ -1,7 +1,7 @@
 import { Stack, Accordion, Card, Text, Group, Divider, Button } from "@mantine/core";
 import { IconUser, IconStethoscope, IconPhone, IconMapPin, IconSettings } from "@tabler/icons-react";
-import type { Lang } from "../lib/types";
-import { tDict } from "../lib/i18n";
+import type { Lang } from "../../lib/types";
+import { tDict } from "../../lib/i18n";
 
 export default function Sidebar({
   lang,
