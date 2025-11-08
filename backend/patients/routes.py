@@ -4,8 +4,20 @@ from datetime import datetime
 
 patients_bp = Blueprint('patients', __name__)
 
-@patients_bp.route('/', methods=['POST'])
+# Handle OPTIONS requests for CORS preflight
+@patients_bp.before_request
+def handle_preflight():
+    if request.method == "OPTIONS":
+        response = jsonify({'status': 'ok'})
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add("Access-Control-Allow-Headers", "Content-Type,Authorization")
+        response.headers.add("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS")
+        return response, 200
+
+@patients_bp.route('/', methods=['POST', 'OPTIONS'])
 def create_patient():
+    if request.method == 'OPTIONS':
+        return '', 200
     data = request.get_json()
     required_fields = ['caretaker_id', 'name']
     for field in required_fields:
@@ -28,8 +40,10 @@ def create_patient():
     db.session.commit()
     return jsonify({'message': 'Patient created', 'pid': patient.pid}), 201
 
-@patients_bp.route('/<int:pid>', methods=['GET'])
+@patients_bp.route('/<int:pid>', methods=['GET', 'OPTIONS'])
 def get_patient(pid):
+    if request.method == 'OPTIONS':
+        return '', 200
     patient = Patient.query.get(pid)
     if not patient:
         return jsonify({'error': 'Patient not found'}), 404
@@ -45,8 +59,10 @@ def get_patient(pid):
         'created_at': patient.created_at
     })
 
-@patients_bp.route('/', methods=['GET'])
+@patients_bp.route('/', methods=['GET', 'OPTIONS'])
 def list_patients():
+    if request.method == 'OPTIONS':
+        return '', 200
     patients = Patient.query.all()
     return jsonify([
         {
@@ -62,8 +78,10 @@ def list_patients():
         } for p in patients
     ])
 
-@patients_bp.route('/<int:pid>', methods=['PUT'])
+@patients_bp.route('/<int:pid>', methods=['PUT', 'OPTIONS'])
 def update_patient(pid):
+    if request.method == 'OPTIONS':
+        return '', 200
     patient = Patient.query.get(pid)
     if not patient:
         return jsonify({'error': 'Patient not found'}), 404
@@ -74,8 +92,10 @@ def update_patient(pid):
     db.session.commit()
     return jsonify({'message': 'Patient updated'})
 
-@patients_bp.route('/<int:pid>', methods=['DELETE'])
+@patients_bp.route('/<int:pid>', methods=['DELETE', 'OPTIONS'])
 def delete_patient(pid):
+    if request.method == 'OPTIONS':
+        return '', 200
     patient = Patient.query.get(pid)
     if not patient:
         return jsonify({'error': 'Patient not found'}), 404

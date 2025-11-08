@@ -13,13 +13,32 @@ from resources.routes import resources_bp
 from conditions.routes import conditions_bp
 from medications.routes import medications_bp
 from recommendations.routes import recommendations_bp
-
-app = Flask(__name__)
 from dotenv import load_dotenv
 import os
+
 load_dotenv()
-app.config['JWT_SECRET_KEY'] = os.getenv('SECRET_KEY')  
-CORS(app)
+
+app = Flask(__name__)
+app.config['JWT_SECRET_KEY'] = os.getenv('SECRET_KEY')
+
+# Enable CORS with proper configuration
+CORS(app, 
+     resources={r"/*": {"origins": "*"}},
+     allow_headers=["Content-Type", "Authorization"],
+     methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+     supports_credentials=True)
+
+# Before request hook to handle CORS preflight
+@app.before_request
+def handle_preflight():
+    from flask import request
+    if request.method == "OPTIONS":
+        response = jsonify({'status': 'ok'})
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add("Access-Control-Allow-Headers", "Content-Type,Authorization")
+        response.headers.add("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS")
+        return response, 200
+
 init_db(app)
 migrate = Migrate(app, db)
 jwt = JWTManager(app)
@@ -32,6 +51,10 @@ app.register_blueprint(resources_bp, url_prefix='/resources')
 app.register_blueprint(conditions_bp, url_prefix='/conditions')
 app.register_blueprint(medications_bp, url_prefix='/medications')
 app.register_blueprint(recommendations_bp, url_prefix='/recommendations')
+
+@app.route('/', methods=['GET'])
+def health():
+    return jsonify({'status': 'ok'}), 200
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True, port=5001)

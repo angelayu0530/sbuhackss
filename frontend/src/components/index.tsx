@@ -6,3 +6,5 @@ export { default as MonthCalendarModal } from "./calendar/MonthCalendarModal";
 export { default as RemindersTab } from "./community/RemindersTab";
 export { default as CommunityTab } from "./community/CommunityTab";
 export { default as ChatAssistant } from "./chat/ChatAssistant";
+export { default as Login } from "./Login";
+export { default as PatientRegistrationModal } from "./PatientRegistrationModal";

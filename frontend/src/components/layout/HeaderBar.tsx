@@ -1,6 +1,8 @@
 import { AppShell, Group, Title, Text, ThemeIcon, Box, Button, Badge } from "@mantine/core";
+import { IconLogout } from "@tabler/icons-react";
 import type { Lang } from "../../lib/types";
 import { tDict, languages } from "../../lib/i18n";
+import { useAuth } from "../../contexts/useAuth";
 
 export default function HeaderBar({
   lang,
@@ -12,6 +14,8 @@ export default function HeaderBar({
   apiStatus: "online" | "offline" | "checking";
 }) {
   const t = tDict[lang];
+  const { logout } = useAuth();
+
   return (
     <AppShell.Header>
       <Group justify="space-between" p="md">
@@ -33,6 +37,9 @@ export default function HeaderBar({
           <Badge color={apiStatus === "online" ? "teal" : apiStatus === "offline" ? "red" : "gray"} variant="light">
             API {apiStatus}
           </Badge>
+          <Button size="xs" variant="light" leftSection={<IconLogout size={14} />} onClick={logout}>
+            Logout
+          </Button>
         </Group>
       </Group>
     </AppShell.Header>

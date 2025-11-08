@@ -11,6 +11,34 @@ export type CalendarEvent = {
 
 export type Task = { id: string; label: string; time: string; done: boolean };
 
+export type User = {
+  uid: number;
+  email: string;
+  name: string;
+  phone?: string;
+};
+
+export type Patient = {
+  pid?: number;
+  caretaker_id: number;
+  name: string;
+  age?: number;
+  gender?: string;
+  medical_summary?: string;
+  emergency_contact?: string;
+  allergies?: string;
+  meds?: string;
+  notes?: string;
+};
+
+export type Doctor = {
+  name: string;
+  phone: string;
+  next: string;
+  specialty: string;
+  location: string;
+};
+
 // Hours shown in week view
 export const HOURS_START = 6;   // 6 AM
 export const HOURS_END = 22;    // 10 PM
