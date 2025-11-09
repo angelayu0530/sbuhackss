@@ -30,27 +30,54 @@ export default function Sidebar({
       }}
     >
       <Stack gap="md" style={{ position: "sticky", top: 88, height: "calc(100vh - 104px)" }}>
-        <Accordion multiple defaultValue={["profile", "doctor"]} radius="md">
+        <Accordion
+          multiple
+          defaultValue={["profile", "doctor"]}
+          radius="lg"
+          styles={{
+            item: {
+              background: 'rgba(255, 255, 255, 0.8)',
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(111, 184, 213, 0.2)',
+              marginBottom: '8px',
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
+            },
+            control: {
+              '&:hover': {
+                background: 'rgba(111, 184, 213, 0.1)',
+              }
+            }
+          }}
+        >
           <Accordion.Item value="profile">
             <Accordion.Control icon={<IconUser size={18} />}>{t.patientInfo}</Accordion.Control>
             <Accordion.Panel>
-              <Card withBorder radius="md" padding="md">
-                <Stack gap={6}>
+              <Card
+                withBorder
+                radius="lg"
+                padding="md"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(255, 245, 240, 0.6) 0%, rgba(240, 249, 255, 0.6) 100%)',
+                  borderColor: 'rgba(111, 184, 213, 0.3)'
+                }}
+              >
+                <Stack gap={8}>
                   <Text size="sm">
-                    <Text span c="dimmed">{t.name}:</Text>{" "}
-                    <Text span fw={600}>{patient.name}</Text>
+                    <Text span c="dimmed" fw={500}>{t.name}:</Text>{" "}
+                    <Text span fw={700} style={{ color: '#4a9ac0' }}>{patient.name}</Text>
                   </Text>
                   <Text size="sm">
-                    <Text span c="dimmed">{t.age}:</Text> {patient.age}
+                    <Text span c="dimmed" fw={500}>{t.age}:</Text> <Text span fw={600}>{patient.age}</Text>
                   </Text>
-                  <Text size="sm" c="red">
-                    <Text span c="dimmed" style={{ color: "inherit" }}>{t.allergies}:</Text> {patient.allergies}
-                  </Text>
-                  <Text size="sm">
-                    <Text span c="dimmed">{t.medication}:</Text> {patient.meds}
+                  <Text size="sm" style={{ color: '#e67d52' }}>
+                    <Text span c="dimmed" style={{ color: 'inherit' }} fw={500}>{t.allergies}:</Text>{" "}
+                    <Text span fw={600}>{patient.allergies}</Text>
                   </Text>
                   <Text size="sm">
-                    <Text span c="dimmed">{t.notes}:</Text> {patient.notes}
+                    <Text span c="dimmed" fw={500}>{t.medication}:</Text> <Text span fw={600}>{patient.meds}</Text>
+                  </Text>
+                  <Text size="sm">
+                    <Text span c="dimmed" fw={500}>{t.notes}:</Text> <Text span fw={600}>{patient.notes}</Text>
                   </Text>
                 </Stack>
               </Card>
@@ -88,7 +115,15 @@ export default function Sidebar({
           </Accordion.Item>
         </Accordion>
 
-        <Button fullWidth leftSection={<IconSettings size={16} />} onClick={onSettingsClick} style={{ marginTop: "auto" }}>
+        <Button
+          fullWidth
+          leftSection={<IconSettings size={16} />}
+          onClick={onSettingsClick}
+          style={{ marginTop: "auto" }}
+          variant="gradient"
+          gradient={{ from: 'mintGreen.5', to: 'warmBlue.5', deg: 135 }}
+          radius="md"
+        >
           {t.settings}
         </Button>
       </Stack>
