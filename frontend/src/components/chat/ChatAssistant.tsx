@@ -9,10 +9,12 @@ type Msg = { from: "ai" | "user"; text: string };
 
 export default function ChatAssistant({ lang }: { lang: Lang }) {
   const t = useMemo(() => tDict[lang], [lang]);
+
   const [messages, setMessages] = useState<Msg[]>(() => {
     const saved = localStorage.getItem("chatHistory");
-    return saved ? JSON.parse(saved) : [{ from: "ai", text: "Hello! I can translate, simplify terms, and draft messages to your doctor." }];
+    return saved ? JSON.parse(saved) : [{ from: "ai", text: tDict.en.aiIntro }]; // fallback if no storage yet
   });
+
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const chatRef = useRef<HTMLDivElement | null>(null);
@@ -21,6 +23,15 @@ export default function ChatAssistant({ lang }: { lang: Lang }) {
     localStorage.setItem("chatHistory", JSON.stringify(messages));
     chatRef.current?.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
   }, [messages]);
+
+  useEffect(() => {
+    setMessages((m) => {
+      if (m.length === 1 && m[0].from === "ai") {
+        return [{ from: "ai", text: t.aiIntro }];
+      }
+      return m;
+    });
+  }, [t.aiIntro]);
 
   const sendMessage = async (text?: string) => {
     const msg = (text ?? input).trim();
@@ -45,8 +56,10 @@ export default function ChatAssistant({ lang }: { lang: Lang }) {
 
   const clearChat = async () => {
     await chatAPI.clearHistory();
-    setMessages([{ from: "ai", text: "Hello! I can translate, simplify terms, and draft messages to your doctor." }]);
-    localStorage.setItem("chatHistory", JSON.stringify([{ from: "ai", text: "Hello! I can translate, simplify terms, and draft messages to your doctor." }]));
+    const intro = t.aiIntro;
+    const initial = [{ from: "ai", text: intro }] as Msg[];
+    setMessages(initial);
+    localStorage.setItem("chatHistory", JSON.stringify(initial));
   };
 
   return (
@@ -62,7 +75,9 @@ export default function ChatAssistant({ lang }: { lang: Lang }) {
           <IconTrash size={18} />
         </ActionIcon>
       </Group>
+
       <Divider my="sm" />
+
       <ScrollArea h={420} viewportRef={chatRef} style={{ border: "1px solid var(--mantine-color-gray-3)", borderRadius: 12 }}>
         <Stack p="sm">
           {messages.map((m, i) => (
@@ -94,7 +109,7 @@ export default function ChatAssistant({ lang }: { lang: Lang }) {
           style={{ flex: 1 }}
         />
         <Button leftSection={<IconSend size={16} />} onClick={() => sendMessage()} loading={isLoading}>
-          Send
+          {t.send} {/* 🔁 translated */}
         </Button>
       </Group>
 

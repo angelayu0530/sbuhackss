@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Card, Group, Badge, Stack, Text, Button, TextInput, Modal, Textarea, Select, Input } from "@mantine/core";
 import { tasksAPI } from "../../services/api";
 import { useAuth } from "../../contexts/useAuth";
+import { tDict } from "../../lib/i18n";
+import type { Lang } from "../../lib/types";
 
 type Task = { tid?: number; id: string; label: string; time: string; done: boolean; status?: string; priority?: string };
 
@@ -15,12 +17,15 @@ function markResetNow(now = Date.now()) {
 }
 
 export default function RemindersTab({
+  lang,
   tasks,
   setTasks,
 }: {
+  lang: Lang;
   tasks: Task[];
   setTasks: (fn: (t: Task[]) => Task[]) => void;
 }) {
+  const t = tDict[lang];
   const { user, patient, token } = useAuth();
   const [isAddingTask, setIsAddingTask] = useState(false);
   const [resetTime, setResetTime] = useState<string>("");
@@ -147,14 +152,14 @@ export default function RemindersTab({
     <Stack gap="xs">
       <Group justify="space-between">
         <Button onClick={() => setIsAddingTask(true)} variant="light">
-          + Add Reminder
+          {t.addReminder}
         </Button>
         <Text size="xs" c="dimmed">
           Resets at {resetTime}
         </Text>
       </Group>
 
-      <Modal opened={isAddingTask} onClose={() => setIsAddingTask(false)} title="Add Reminder" size="md">
+      <Modal opened={isAddingTask} onClose={() => setIsAddingTask(false)} title={t.addReminder} size="md">
         <Stack gap="md">
           <TextInput
             label="Reminder *"
@@ -197,7 +202,7 @@ export default function RemindersTab({
             <Button variant="light" onClick={() => setIsAddingTask(false)}>
               Cancel
             </Button>
-            <Button onClick={addTask}>Add Reminder</Button>
+            <Button onClick={addTask}>{t.addReminder}</Button>
           </Group>
         </Stack>
       </Modal>

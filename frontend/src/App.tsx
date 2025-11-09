@@ -95,11 +95,10 @@ export default function App() {
   if (!user) {
     return <Login />;
   }
-
   if (showSettings) {
     return (
       <AppShell header={{ height: 64 }} padding="md">
-        <HeaderBar />
+        <HeaderBar lang={lang} setLang={setLang} />
         <AppShell.Main>
           <Settings onBack={() => setShowSettings(false)} />
         </AppShell.Main>
@@ -110,8 +109,7 @@ export default function App() {
   return (
     <>
       <AppShell header={{ height: 64 }} padding="md">
-        <HeaderBar />
-
+        <HeaderBar lang={lang} setLang={setLang} />
         <AppShell.Main>
           <Container fluid p={0} style={{ maxWidth: 1400, marginInline: "auto" }}>
             <Grid gutter="md">
@@ -135,7 +133,7 @@ export default function App() {
                     </Tabs.List>
 
                     <Tabs.Panel value="reminders" pt="md">
-                      <RemindersTab tasks={tasks} setTasks={setTasks} />
+                      <RemindersTab lang={lang} tasks={tasks} setTasks={setTasks} />
                     </Tabs.Panel>
                     <Tabs.Panel value="community" pt="md">
                       <CommunityTab />
