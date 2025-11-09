@@ -11,7 +11,7 @@ export default function WeekCalendar({
   lang,
   onOpenMonth,
   events,
-  weekStart = dayjs().startOf("week").add(1, "day"), // Monday
+  weekStart = dayjs().startOf("week").add(1, "day"),
 }: {
   lang: Lang;
   onOpenMonth: () => void;
@@ -43,12 +43,14 @@ export default function WeekCalendar({
 
       {/* Header row */}
       <Box style={{ display: "grid", gridTemplateColumns: "64px repeat(7, 1fr)", gap: 0 }}>
-        <Box />
-        {days.map((d) => (
-          <Box key={d.toString()} style={{ padding: "6px 8px", borderLeft: "1px solid var(--mantine-color-gray-3)" }}>
-            <Text fw={700} size="sm">{d.format("ddd D")}</Text>
-          </Box>
-        ))}
+    <Box />
+    {days.map((d, i) => (
+      <Box key={d.toString()} style={{ padding: "6px 8px", borderLeft: "1px solid var(--mantine-color-gray-3)" }}>
+        <Text fw={700} size="sm">
+          {t.weekdaysShort[i]} {d.format("D")} {/* 🔁 translated weekday */}
+        </Text>
+      </Box>
+    ))}
 
         {/* Body */}
         <Box
