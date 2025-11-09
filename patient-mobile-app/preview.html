@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Mobile App - Design Preview</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .device-selector {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+
+        .device-selector h3 {
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .device-selector button {
+            display: block;
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 2px solid #6fb8d5;
+            background: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .device-selector button:hover {
+            background: #6fb8d5;
+            color: white;
+        }
+
+        .device-selector button.active {
+            background: #6fb8d5;
+            color: white;
+        }
+
+        .screen-selector {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+
+        .screen-selector h3 {
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .screen-selector button {
+            display: block;
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 2px solid #6fb8d5;
+            background: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .screen-selector button:hover {
+            background: #6fb8d5;
+            color: white;
+        }
+
+        .screen-selector button.active {
+            background: #6fb8d5;
+            color: white;
+        }
+
+        .phone-frame {
+            background: #1a1a1a;
+            border-radius: 40px;
+            padding: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .phone-notch {
+            background: #1a1a1a;
+            height: 30px;
+            border-radius: 0 0 20px 20px;
+            margin: -15px 60px 10px 60px;
+        }
+
+        .phone-screen {
+            background: #f5f5f5;
+            border-radius: 25px;
+            overflow: hidden;
+            position: relative;
+            container-type: inline-size;
+            container-name: phone;
+        }
+
+        .screen-content {
+            height: 100%;
+            overflow-y: auto;
+            font-size: 16px;
+        }
+
+        /* Device sizes with CSS variables */
+        .iphone-se .phone-screen {
+            --screen-width: 375px;
+            --screen-height: 667px;
+            width: var(--screen-width);
+            height: var(--screen-height);
+        }
+
+        .iphone-14 .phone-screen {
+            --screen-width: 390px;
+            --screen-height: 844px;
+            width: var(--screen-width);
+            height: var(--screen-height);
+        }
+
+        .iphone-14-pro-max .phone-screen {
+            --screen-width: 430px;
+            --screen-height: 932px;
+            width: var(--screen-width);
+            height: var(--screen-height);
+        }
+
+        .android-small .phone-screen {
+            --screen-width: 360px;
+            --screen-height: 640px;
+            width: var(--screen-width);
+            height: var(--screen-height);
+        }
+
+        .android-large .phone-screen {
+            --screen-width: 412px;
+            --screen-height: 915px;
+            width: var(--screen-width);
+            height: var(--screen-height);
+        }
+
+        /* Screen styles - Using container query units (cqw = container query width) */
+        .header {
+            background: #6fb8d5;
+            padding: 8cqh 5cqw;
+            text-align: center;
+            color: white;
+        }
+
+        .time {
+            font-size: clamp(36px, 12cqw, 56px);
+            font-weight: 800;
+        }
+
+        .greeting {
+            font-size: clamp(24px, 8cqw, 36px);
+            font-weight: 600;
+            margin-top: 1cqh;
+        }
+
+        .date {
+            font-size: clamp(16px, 5cqw, 22px);
+            margin-top: 0.5cqh;
+        }
+
+        .card {
+            background: white;
+            margin: 4cqw;
+            padding: 5cqw;
+            border-radius: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-title {
+            font-size: clamp(18px, 6cqw, 26px);
+            font-weight: 700;
+            margin-bottom: 1.5cqh;
+            color: #333;
+        }
+
+        .card-text {
+            font-size: clamp(16px, 5cqw, 20px);
+            color: #666;
+            line-height: 1.4;
+        }
+
+        .schedule-item {
+            display: flex;
+            padding: 1.5cqh 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .schedule-time {
+            font-size: clamp(18px, 5.5cqw, 24px);
+            font-weight: 700;
+            color: #6fb8d5;
+            width: 30%;
+        }
+
+        .schedule-location {
+            font-size: clamp(18px, 5.5cqw, 24px);
+            color: #333;
+            flex: 1;
+        }
+
+        .button {
+            background: #6fb8d5;
+            padding: 2cqh 4cqw;
+            border-radius: 12px;
+            text-align: center;
+            margin-top: 1.5cqh;
+            color: white;
+            font-size: clamp(16px, 5cqw, 22px);
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .quick-actions {
+            display: flex;
+            justify-content: space-around;
+            padding: 4cqw;
+            gap: 4cqw;
+        }
+
+        .quick-button {
+            background: white;
+            width: 38cqw;
+            height: 38cqw;
+            max-width: 160px;
+            max-height: 160px;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .quick-button-text {
+            font-size: clamp(36px, 12cqw, 52px);
+        }
+
+        .quick-button-label {
+            font-size: clamp(16px, 5cqw, 22px);
+            font-weight: 600;
+            color: #333;
+            margin-top: 1cqh;
+        }
+
+        .tab-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 1.5cqh 0;
+            border-top: 1px solid #e0e0e0;
+            height: 10cqh;
+            min-height: 60px;
+        }
+
+        .tab-item {
+            text-align: center;
+            font-size: clamp(14px, 4cqw, 18px);
+            padding: 1cqh 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .contact-card {
+            background: white;
+            margin: 4cqw;
+            padding: 5cqw;
+            border-radius: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .contact-name {
+            font-size: clamp(20px, 7cqw, 30px);
+            font-weight: 700;
+            color: #333;
+        }
+
+        .contact-phone {
+            font-size: clamp(18px, 5.5cqw, 24px);
+            color: #6fb8d5;
+            margin-top: 0.5cqh;
+            font-weight: 600;
+        }
+
+        .call-button {
+            background: #4CAF50;
+            width: 20cqw;
+            height: 20cqw;
+            max-width: 90px;
+            max-height: 90px;
+            min-width: 60px;
+            min-height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(32px, 10cqw, 44px);
+        }
+
+        .emergency-card {
+            background: #FF5252;
+            margin: 4cqw;
+            padding: 4cqh 5cqw;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .emergency-icon {
+            font-size: clamp(36px, 12cqw, 52px);
+            margin-right: 5cqw;
+        }
+
+        .emergency-text {
+            font-size: clamp(24px, 8cqw, 36px);
+            font-weight: 800;
+            color: white;
+        }
+
+        /* Inline styles converted to classes for better control */
+        .schedule-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3cqh;
+            padding: 5cqw;
+        }
+
+        .schedule-title {
+            font-size: clamp(20px, 7cqw, 32px);
+            font-weight: 700;
+            color: #333;
+        }
+
+        .schedule-current-time {
+            font-size: clamp(16px, 5cqw, 22px);
+            font-weight: 600;
+            color: #6fb8d5;
+        }
+
+        .schedule-event-card {
+            background: white;
+            margin: 0 5cqw 2cqh 5cqw;
+            padding: 4cqw;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .schedule-event-time {
+            font-size: clamp(16px, 4.5cqw, 20px);
+            font-weight: 600;
+            color: #6fb8d5;
+            margin-right: 4cqw;
+            min-width: 22%;
+        }
+
+        .schedule-event-title {
+            font-size: clamp(16px, 5cqw, 22px);
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5cqh;
+        }
+
+        .schedule-event-desc {
+            font-size: clamp(14px, 4cqw, 18px);
+            color: #666;
+        }
+
+        .header-title {
+            font-size: clamp(24px, 8cqw, 36px);
+            font-weight: 700;
+        }
+
+        .header-subtitle {
+            font-size: clamp(16px, 4.5cqw, 20px);
+            margin-top: 1cqh;
+        }
+
+        .contact-relationship {
+            font-size: clamp(16px, 5cqw, 22px);
+            color: #666;
+            margin-top: 0.5cqh;
+        }
+
+        .primary-badge {
+            background: #6fb8d5;
+            color: white;
+            padding: 0.8cqh 3cqw;
+            border-radius: 20px;
+            display: inline-block;
+            margin-top: 1cqh;
+            font-size: clamp(12px, 3.5cqw, 16px);
+            font-weight: 600;
+        }
+
+        .emergency-subtext {
+            font-size: clamp(16px, 5cqw, 22px);
+            color: white;
+            margin-top: 0.5cqh;
+        }
+
+        .faq-icon {
+            margin-right: 4cqw;
+            font-size: clamp(32px, 10cqw, 44px);
+        }
+
+        .faq-question {
+            font-size: clamp(18px, 6cqw, 26px);
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 1cqh;
+        }
+
+        .faq-answer {
+            font-size: clamp(16px, 5cqw, 22px);
+            color: #666;
+            line-height: 1.4;
+        }
+
+        .spacer-bottom {
+            height: 12cqh;
+            min-height: 80px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="device-selector">
+        <h3>📱 Device</h3>
+        <button onclick="setDevice('iphone-se')" class="active">iPhone SE (375x667)</button>
+        <button onclick="setDevice('iphone-14')">iPhone 14 (390x844)</button>
+        <button onclick="setDevice('iphone-14-pro-max')">iPhone 14 Pro Max (430x932)</button>
+        <button onclick="setDevice('android-small')">Android Small (360x640)</button>
+        <button onclick="setDevice('android-large')">Android Large (412x915)</button>
+    </div>
+
+    <div class="screen-selector">
+        <h3>🖼️ Screen</h3>
+        <button onclick="showScreen('home')" class="active">Home</button>
+        <button onclick="showScreen('schedule')">Schedule</button>
+        <button onclick="showScreen('contacts')">Contacts</button>
+        <button onclick="showScreen('faq')">FAQ</button>
+    </div>
+
+    <div class="phone-frame iphone-se" id="phoneFrame">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+            <div class="screen-content" id="screenContent">
+                <!-- Home Screen -->
+                <div id="home-screen">
+                    <div class="header">
+                        <div class="time">2:30 PM</div>
+                        <div class="greeting">Good Afternoon!</div>
+                        <div class="date">Saturday, November 9</div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">👤 Your Caregiver</div>
+                        <div class="card-text">Sarah is available today</div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">📅 Today's Schedule</div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">3:00 PM</div>
+                            <div class="schedule-location">Doctor's Appointment</div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">5:30 PM</div>
+                            <div class="schedule-location">Dinner Time</div>
+                        </div>
+                        <div class="button">View Full Schedule</div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">📍 Where Am I?</div>
+                        <div class="card-text">Home - 123 Main Street</div>
+                        <div class="button" style="background: #ffa67f;">How to Get Home</div>
+                    </div>
+
+                    <div class="quick-actions">
+                        <div class="quick-button">
+                            <div class="quick-button-text">❓</div>
+                            <div class="quick-button-label">Help</div>
+                        </div>
+                        <div class="quick-button">
+                            <div class="quick-button-text">☎️</div>
+                            <div class="quick-button-label">Call</div>
+                        </div>
+                    </div>
+
+                    <div class="spacer-bottom"></div>
+                </div>
+
+                <!-- Schedule Screen -->
+                <div id="schedule-screen" style="display: none;">
+                    <div class="schedule-header">
+                        <div class="schedule-title">Today's Schedule</div>
+                        <div class="schedule-current-time">2:30 PM</div>
+                    </div>
+
+                    <div class="schedule-event-card">
+                        <div style="display: flex;">
+                            <div class="schedule-event-time">9:00 AM</div>
+                            <div style="flex: 1;">
+                                <div class="schedule-event-title">Breakfast</div>
+                                <div class="schedule-event-desc">9:00 AM - 10:00 AM</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="schedule-event-card">
+                        <div style="display: flex;">
+                            <div class="schedule-event-time">3:00 PM</div>
+                            <div style="flex: 1;">
+                                <div class="schedule-event-title">Doctor's Appointment</div>
+                                <div class="schedule-event-desc">3:00 PM - 4:00 PM</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="schedule-event-card">
+                        <div style="display: flex;">
+                            <div class="schedule-event-time">5:30 PM</div>
+                            <div style="flex: 1;">
+                                <div class="schedule-event-title">Dinner Time</div>
+                                <div class="schedule-event-desc">5:30 PM - 6:30 PM</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="spacer-bottom"></div>
+                </div>
+
+                <!-- Contacts Screen -->
+                <div id="contacts-screen" style="display: none;">
+                    <div class="header">
+                        <div class="header-title">Emergency Contacts</div>
+                        <div class="header-subtitle">Tap to call</div>
+                    </div>
+
+                    <div class="contact-card" style="border: 3px solid #6fb8d5;">
+                        <div>
+                            <div class="contact-name">Sarah Johnson</div>
+                            <div class="contact-relationship">Primary Caregiver</div>
+                            <div class="contact-phone">(555) 123-4567</div>
+                            <div class="primary-badge">Primary Contact</div>
+                        </div>
+                        <div class="call-button">📞</div>
+                    </div>
+
+                    <div class="contact-card">
+                        <div>
+                            <div class="contact-name">Dr. Smith</div>
+                            <div class="contact-relationship">Doctor</div>
+                            <div class="contact-phone">(555) 987-6543</div>
+                        </div>
+                        <div class="call-button">📞</div>
+                    </div>
+
+                    <div class="emergency-card">
+                        <div class="emergency-icon">🚨</div>
+                        <div>
+                            <div class="emergency-text">EMERGENCY</div>
+                            <div class="emergency-subtext">Call 911</div>
+                        </div>
+                    </div>
+
+                    <div class="spacer-bottom"></div>
+                </div>
+
+                <!-- FAQ Screen -->
+                <div id="faq-screen" style="display: none;">
+                    <div class="header">
+                        <div class="header-title">Common Questions</div>
+                        <div class="header-subtitle">Tap any question to hear the answer</div>
+                    </div>
+
+                    <div class="card" style="display: flex; align-items: center;">
+                        <div class="faq-icon">🔊</div>
+                        <div style="flex: 1;">
+                            <div class="faq-question">Where do I live?</div>
+                            <div class="faq-answer">You live at 123 Main Street, Apartment 4B</div>
+                        </div>
+                    </div>
+
+                    <div class="card" style="display: flex; align-items: center;">
+                        <div class="faq-icon">🔊</div>
+                        <div style="flex: 1;">
+                            <div class="faq-question">What is my name?</div>
+                            <div class="faq-answer">Your name is John Smith</div>
+                        </div>
+                    </div>
+
+                    <div class="card" style="display: flex; align-items: center;">
+                        <div class="faq-icon">🔊</div>
+                        <div style="flex: 1;">
+                            <div class="faq-question">Who is my caregiver?</div>
+                            <div class="faq-answer">Your caregiver is Sarah Johnson. You can call her anytime.</div>
+                        </div>
+                    </div>
+
+                    <div class="spacer-bottom"></div>
+                </div>
+            </div>
+
+            <div class="tab-bar">
+                <div class="tab-item">🏠 Home</div>
+                <div class="tab-item">📅 Schedule</div>
+                <div class="tab-item">❓ Help</div>
+                <div class="tab-item">☎️ Call</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function setDevice(deviceClass) {
+            const frame = document.getElementById('phoneFrame');
+            frame.className = 'phone-frame ' + deviceClass;
+
+            // Update active button
+            document.querySelectorAll('.device-selector button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
+        function showScreen(screenName) {
+            // Hide all screens
+            ['home', 'schedule', 'contacts', 'faq'].forEach(screen => {
+                document.getElementById(screen + '-screen').style.display = 'none';
+            });
+
+            // Show selected screen
+            document.getElementById(screenName + '-screen').style.display = 'block';
+
+            // Update active button
+            document.querySelectorAll('.screen-selector button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+
+</html>

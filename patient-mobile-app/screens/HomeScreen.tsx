@@ -1,8 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Dimensions } from 'react-native';
+import * as Speech from 'expo-speech';
 import socket from '../services/socket';
 import api from '../services/api';
 import dayjs from 'dayjs';
+
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+
+// Color theme matching frontend
+const COLORS = {
+    primary: '#5cc9b1',      // Teal (main brand color)
+    primaryDark: '#4bb8a2',  // Darker teal for hover
+    secondary: '#b7a9e1',    // Purple accent
+    background: '#f8f9fa',   // Light gray background
+    cardBg: '#ffffff',       // White cards
+    textDark: '#333333',     // Dark text
+    textMedium: '#666666',   // Medium gray text
+    textLight: '#999999',    // Light gray text
+    border: '#e5e5e5',       // Border color
+};
 
 const PATIENT_ID = 1; // Replace with actual patient ID
 
@@ -54,6 +70,14 @@ export default function HomeScreen({ navigation }: any) {
         return 'Good Evening';
     };
 
+    const speak = (text: string) => {
+        Speech.speak(text, {
+            language: 'en-US',
+            pitch: 1.0,
+            rate: 0.75, // Slower for elderly
+        });
+    };
+
     if (!homeData) {
         return (
             <View style={styles.container}>
@@ -73,15 +97,36 @@ export default function HomeScreen({ navigation }: any) {
 
             {/* Caregiver Status */}
             {homeData.caregiver_status && (
-                <View style={styles.card}>
-                    <Text style={styles.cardTitle}>👤 Your Caregiver</Text>
+                <TouchableOpacity
+                    style={styles.card}
+                    onPress={() => speak(`Your Caregiver. ${homeData.caregiver_status}`)}
+                    activeOpacity={0.7}
+                >
+                    <View style={styles.cardHeader}>
+                        <Text style={styles.cardTitle}>👤 Your Caregiver</Text>
+                        <Text style={styles.speakerIcon}>🔊</Text>
+                    </View>
                     <Text style={styles.cardText}>{homeData.caregiver_status}</Text>
-                </View>
+                </TouchableOpacity>
             )}
 
             {/* Today's Schedule */}
-            <View style={styles.card}>
-                <Text style={styles.cardTitle}>📅 Today's Schedule</Text>
+            <TouchableOpacity
+                style={styles.card}
+                onPress={() => {
+                    const scheduleText = homeData.schedule && homeData.schedule.length > 0
+                        ? `Today's Schedule. ${homeData.schedule.map((item: any) =>
+                            `${dayjs(item.start_time).format('h:mm A')} ${item.location || 'Event'}`
+                        ).join('. ')}`
+                        : 'Today\'s Schedule. No events scheduled today';
+                    speak(scheduleText);
+                }}
+                activeOpacity={0.7}
+            >
+                <View style={styles.cardHeader}>
+                    <Text style={styles.cardTitle}>📅 Today's Schedule</Text>
+                    <Text style={styles.speakerIcon}>🔊</Text>
+                </View>
                 {homeData.schedule && homeData.schedule.length > 0 ? (
                     homeData.schedule.slice(0, 3).map((item: any, index: number) => (
                         <View key={index} style={styles.scheduleItem}>
@@ -96,24 +141,37 @@ export default function HomeScreen({ navigation }: any) {
                 )}
                 <TouchableOpacity
                     style={styles.button}
-                    onPress={() => navigation.navigate('Schedule')}
+                    onPress={(e) => {
+                        e.stopPropagation();
+                        navigation.navigate('Schedule');
+                    }}
                 >
                     <Text style={styles.buttonText}>View Full Schedule</Text>
                 </TouchableOpacity>
-            </View>
+            </TouchableOpacity>
 
             {/* Where Am I */}
             {homeData.home_address && (
-                <View style={styles.card}>
-                    <Text style={styles.cardTitle}>📍 Where Am I?</Text>
+                <TouchableOpacity
+                    style={styles.card}
+                    onPress={() => speak(`Where Am I? You are at Home. ${homeData.home_address}`)}
+                    activeOpacity={0.7}
+                >
+                    <View style={styles.cardHeader}>
+                        <Text style={styles.cardTitle}>📍 Where Am I?</Text>
+                        <Text style={styles.speakerIcon}>🔊</Text>
+                    </View>
                     <Text style={styles.cardText}>Home - {homeData.home_address}</Text>
                     <TouchableOpacity
                         style={[styles.button, styles.buttonSecondary]}
-                        onPress={() => navigation.navigate('Navigation')}
+                        onPress={(e) => {
+                            e.stopPropagation();
+                            navigation.navigate('Navigation');
+                        }}
                     >
                         <Text style={styles.buttonText}>How to Get Home</Text>
                     </TouchableOpacity>
-                </View>
+                </TouchableOpacity>
             )}
 
             {/* Quick Actions */}
@@ -141,97 +199,117 @@ export default function HomeScreen({ navigation }: any) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f5f5f5',
+        backgroundColor: COLORS.background,
     },
     header: {
-        backgroundColor: '#6fb8d5',
-        padding: 30,
+        backgroundColor: COLORS.primary,
+        paddingVertical: SCREEN_HEIGHT * 0.05,
+        paddingHorizontal: SCREEN_WIDTH * 0.05,
         alignItems: 'center',
     },
     time: {
-        fontSize: 48,
+        fontSize: Math.min(SCREEN_WIDTH * 0.15, 64),
         fontWeight: '800',
         color: 'white',
     },
     greeting: {
-        fontSize: 32,
+        fontSize: Math.min(SCREEN_WIDTH * 0.09, 40),
         fontWeight: '600',
         color: 'white',
-        marginTop: 10,
+        marginTop: SCREEN_HEIGHT * 0.015,
     },
     date: {
-        fontSize: 20,
+        fontSize: Math.min(SCREEN_WIDTH * 0.055, 24),
         color: 'white',
-        marginTop: 5,
+        marginTop: SCREEN_HEIGHT * 0.008,
     },
     card: {
-        backgroundColor: 'white',
-        margin: 15,
-        padding: 20,
+        backgroundColor: COLORS.cardBg,
+        marginHorizontal: SCREEN_WIDTH * 0.04,
+        marginVertical: SCREEN_HEIGHT * 0.015,
+        padding: SCREEN_WIDTH * 0.06,
         borderRadius: 15,
+        borderWidth: 1,
+        borderColor: COLORS.border,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
         shadowRadius: 4,
         elevation: 3,
     },
+    cardHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: SCREEN_HEIGHT * 0.015,
+    },
     cardTitle: {
-        fontSize: 24,
+        fontSize: Math.min(SCREEN_WIDTH * 0.065, 28),
         fontWeight: '700',
-        marginBottom: 15,
-        color: '#333',
+        color: COLORS.textDark,
+        flex: 1,
+    },
+    speakerIcon: {
+        fontSize: Math.min(SCREEN_WIDTH * 0.06, 26),
+        marginLeft: SCREEN_WIDTH * 0.03,
     },
     cardText: {
-        fontSize: 20,
-        color: '#666',
-        lineHeight: 28,
+        fontSize: Math.min(SCREEN_WIDTH * 0.055, 24),
+        color: COLORS.textMedium,
+        lineHeight: Math.min(SCREEN_WIDTH * 0.075, 32),
     },
     scheduleItem: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: 12,
+        paddingVertical: SCREEN_HEIGHT * 0.018,
         borderBottomWidth: 1,
-        borderBottomColor: '#f0f0f0',
+        borderBottomColor: COLORS.border,
     },
     scheduleTime: {
-        fontSize: 22,
+        fontSize: Math.min(SCREEN_WIDTH * 0.06, 26),
         fontWeight: '700',
-        color: '#6fb8d5',
-        width: 120,
+        color: COLORS.primary,
+        width: SCREEN_WIDTH * 0.3,
     },
     scheduleLocation: {
-        fontSize: 22,
-        color: '#333',
+        fontSize: Math.min(SCREEN_WIDTH * 0.06, 26),
+        color: COLORS.textDark,
         flex: 1,
     },
     button: {
-        backgroundColor: '#6fb8d5',
-        padding: 18,
+        backgroundColor: COLORS.primary,
+        paddingVertical: SCREEN_HEIGHT * 0.022,
+        paddingHorizontal: SCREEN_WIDTH * 0.05,
         borderRadius: 12,
         alignItems: 'center',
-        marginTop: 15,
+        marginTop: SCREEN_HEIGHT * 0.02,
     },
     buttonSecondary: {
-        backgroundColor: '#ffa67f',
+        backgroundColor: COLORS.secondary,
     },
     buttonText: {
         color: 'white',
-        fontSize: 20,
-        fontWeight: '600',
+        fontSize: Math.min(SCREEN_WIDTH * 0.055, 24),
+        fontWeight: '700',
     },
     quickActions: {
         flexDirection: 'row',
         justifyContent: 'space-around',
-        padding: 15,
-        marginBottom: 30,
+        paddingHorizontal: SCREEN_WIDTH * 0.04,
+        paddingVertical: SCREEN_HEIGHT * 0.02,
+        marginBottom: SCREEN_HEIGHT * 0.03,
     },
     quickButton: {
-        backgroundColor: 'white',
-        width: 140,
-        height: 140,
+        backgroundColor: COLORS.cardBg,
+        width: SCREEN_WIDTH * 0.4,
+        height: SCREEN_WIDTH * 0.4,
+        maxWidth: 170,
+        maxHeight: 170,
         borderRadius: 20,
         alignItems: 'center',
         justifyContent: 'center',
+        borderWidth: 2,
+        borderColor: COLORS.border,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
@@ -239,18 +317,18 @@ const styles = StyleSheet.create({
         elevation: 3,
     },
     quickButtonText: {
-        fontSize: 48,
+        fontSize: Math.min(SCREEN_WIDTH * 0.14, 60),
     },
     quickButtonLabel: {
-        fontSize: 20,
-        fontWeight: '600',
-        color: '#333',
-        marginTop: 10,
+        fontSize: Math.min(SCREEN_WIDTH * 0.055, 24),
+        fontWeight: '700',
+        color: COLORS.textDark,
+        marginTop: SCREEN_HEIGHT * 0.012,
     },
     loadingText: {
-        fontSize: 24,
-        color: '#666',
+        fontSize: Math.min(SCREEN_WIDTH * 0.07, 30),
+        color: COLORS.textMedium,
         textAlign: 'center',
-        marginTop: 100,
+        marginTop: SCREEN_HEIGHT * 0.15,
     },
 });

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import dayjs from 'dayjs';
 import socket from '@/services/socket';
 import api from '@/services/api';
@@ -40,42 +41,54 @@ export default function ScheduleScreen() {
     };
 
     return (
-        <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-            <View style={styles.header}>
-                <Text style={styles.title}>Today's Schedule</Text>
-                <Text style={styles.currentTime}>{getCurrentTime()}</Text>
-            </View>
+        <LinearGradient
+            colors={['#7ac594ff', '#388a4aff', '#0d502fff']}
+            style={styles.gradientContainer}
+        >
+            <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+                <LinearGradient
+                    colors={['#1b5021ff', '#41772aff', '#0e73b6ff']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    style={styles.header}
+                >
+                    <Text style={styles.title}>Today's Schedule</Text>
+                    <Text style={styles.currentTime}>{getCurrentTime()}</Text>
+                </LinearGradient>
 
-            {events.length === 0 ? (
-                <View style={styles.emptyState}>
-                    <Text style={styles.emptyText}>No events scheduled</Text>
-                    <Text style={styles.emptySubtext}>Enjoy your free time!</Text>
-                </View>
-            ) : (
-                events.map((event, index) => (
-                    <View key={index} style={styles.eventCard}>
-                        <View style={styles.timeContainer}>
-                            <Text style={styles.eventTime}>
-                                {dayjs(event.start_time).format('h:mm A')}
-                            </Text>
-                        </View>
-                        <View style={styles.eventDetails}>
-                            <Text style={styles.eventTitle}>{event.location || 'Event'}</Text>
-                            <Text style={styles.eventDescription}>
-                                {dayjs(event.start_time).format('h:mm A')} - {dayjs(event.end_time).format('h:mm A')}
-                            </Text>
-                        </View>
+                {events.length === 0 ? (
+                    <View style={styles.emptyState}>
+                        <Text style={styles.emptyText}>No events scheduled</Text>
+                        <Text style={styles.emptySubtext}>Enjoy your free time!</Text>
                     </View>
-                ))
-            )}
-        </ScrollView>
+                ) : (
+                    events.map((event, index) => (
+                        <View key={index} style={styles.eventCard}>
+                            <View style={styles.timeContainer}>
+                                <Text style={styles.eventTime}>
+                                    {dayjs(event.start_time).format('h:mm A')}
+                                </Text>
+                            </View>
+                            <View style={styles.eventDetails}>
+                                <Text style={styles.eventTitle}>{event.location || 'Event'}</Text>
+                                <Text style={styles.eventDescription}>
+                                    {dayjs(event.start_time).format('h:mm A')} - {dayjs(event.end_time).format('h:mm A')}
+                                </Text>
+                            </View>
+                        </View>
+                    ))
+                )}
+            </ScrollView>
+        </LinearGradient>
     );
 }
 
 const styles = StyleSheet.create({
+    gradientContainer: {
+        flex: 1,
+    },
     container: {
         flex: 1,
-        backgroundColor: '#f5f5f5',
     },
     contentContainer: {
         padding: 20,
@@ -85,16 +98,20 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         marginBottom: 24,
+        marginHorizontal: 20,
+        marginTop: 20,
+        padding: 20,
+        borderRadius: 15,
     },
     title: {
         fontSize: 28,
         fontWeight: '700',
-        color: '#333',
+        color: 'white',
     },
     currentTime: {
         fontSize: 20,
         fontWeight: '600',
-        color: '#6fb8d5',
+        color: 'white',
     },
     eventCard: {
         backgroundColor: 'white',

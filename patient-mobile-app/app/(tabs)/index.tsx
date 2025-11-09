@@ -1,14 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Image } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import socket from '@/services/socket';
 import api from '@/services/api';
 import dayjs from 'dayjs';
 import { useRouter } from 'expo-router';
 
+interface ScheduleEvent {
+  id: number;
+  start_time: string;
+  end_time: string;
+  location?: string;
+}
+
 export default function HomeScreen() {
   const router = useRouter();
   const [homeData, setHomeData] = useState<any>(null);
   const [currentTime, setCurrentTime] = useState(dayjs());
+  const [schedule, setSchedule] = useState<ScheduleEvent[]>([]);
 
   useEffect(() => {
     // Connect to Socket.IO
@@ -17,6 +26,11 @@ export default function HomeScreen() {
     // Set up real-time listeners
     socket.on('schedule_changed', () => {
       loadHomeData();
+      loadSchedule();
+    });
+
+    socket.on('schedule_updated', () => {
+      loadSchedule();
     });
 
     socket.on('urgent_message', (data: any) => {
@@ -25,6 +39,7 @@ export default function HomeScreen() {
 
     // Load initial data
     loadHomeData();
+    loadSchedule();
 
     // Update time every minute
     const timer = setInterval(() => {
@@ -34,6 +49,7 @@ export default function HomeScreen() {
     return () => {
       clearInterval(timer);
       socket.off('schedule_changed');
+      socket.off('schedule_updated');
       socket.off('urgent_message');
     };
   }, []);
@@ -47,120 +63,186 @@ export default function HomeScreen() {
     }
   };
 
-  const getGreeting = () => {
-    const hour = currentTime.hour();
-    if (hour < 12) return 'Good Morning';
-    if (hour < 18) return 'Good Afternoon';
-    return 'Good Evening';
+  const loadSchedule = async () => {
+    try {
+      const data = await api.getSchedule();
+      setSchedule(data);
+    } catch (error) {
+      console.error('Failed to load schedule:', error);
+    }
+  };
+
+  const handleGoHome = () => {
+    Alert.alert(
+      'Navigate Home',
+      'This will guide you home and alert your caregiver of your current location.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Start Navigation',
+          onPress: () => {
+            // TODO: Integrate map navigation and send location to caregiver
+            Alert.alert('Navigation Started', 'Your caregiver has been notified.');
+          },
+        },
+      ]
+    );
   };
 
   if (!homeData) {
     return (
-      <View style={styles.container}>
-        <Text style={styles.loadingText}>Loading...</Text>
-      </View>
+      <LinearGradient colors={['#e3f2fd', '#f0f8ff', '#fef9e7']} style={styles.gradientContainer}>
+        <View style={styles.loadingContainer}>
+          <Text style={styles.loadingText}>Loading...</Text>
+        </View>
+      </LinearGradient>
     );
   }
 
   return (
-    <ScrollView style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.time}>{currentTime.format('h:mm A')}</Text>
-        <Text style={styles.greeting}>{getGreeting()}!</Text>
-        <Text style={styles.date}>{currentTime.format('dddd, MMMM D')}</Text>
-      </View>
+    <LinearGradient
+      colors={['#e3f2fd', '#88b9e4ff', '#3b86ffff']}
+      style={styles.gradientContainer}
+    >
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Header with Time */}
+        <LinearGradient
+          colors={['#dc926fff', '#64b5f6', '#3087e3ff']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.header}
+        >
+          <Text style={styles.time}>{currentTime.format('h:mm A')}</Text>
+          <Text style={styles.date}>{currentTime.format('dddd, MMMM D')}</Text>
+        </LinearGradient>
 
-      {/* Caregiver Status */}
-      {homeData.caregiver_status && (
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>👤 Your Caregiver</Text>
-          <Text style={styles.cardText}>{homeData.caregiver_status}</Text>
-        </View>
-      )}
+        {/* Go Home Button */}
+        <TouchableOpacity style={styles.goHomeButton} onPress={handleGoHome}>
+          <LinearGradient
+            colors={['#ce7768ff', '#ee7f5aff', '#dd5b37ff']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.goHomeGradient}
+          >
+            <Text style={styles.goHomeIcon}>🏠</Text>
+            <Text style={styles.goHomeText}>TAKE ME HOME</Text>
+            <Text style={styles.goHomeSubtext}>Tap to navigate & alert caregiver</Text>
+          </LinearGradient>
+        </TouchableOpacity>
 
-      {/* Today's Schedule */}
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>📅 Today's Schedule</Text>
-        {homeData.schedule && homeData.schedule.length > 0 ? (
-          homeData.schedule.slice(0, 3).map((item: any, index: number) => (
-            <View key={index} style={styles.scheduleItem}>
-              <Text style={styles.scheduleTime}>
-                {dayjs(item.start_time).format('h:mm A')}
-              </Text>
-              <Text style={styles.scheduleLocation}>{item.location || 'Event'}</Text>
-            </View>
-          ))
-        ) : (
-          <Text style={styles.cardText}>No events scheduled today</Text>
+        {/* Home Address */}
+        {homeData.home_address && (
+          <View style={styles.addressCard}>
+            <Text style={styles.addressLabel}>📍 Home Address:</Text>
+            <Text style={styles.addressText}>{homeData.home_address}</Text>
+          </View>
         )}
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => router.push('/schedule')}
-        >
-          <Text style={styles.buttonText}>View Full Schedule</Text>
-        </TouchableOpacity>
-      </View>
 
-      {/* Where Am I */}
-      {homeData.home_address && (
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>📍 Where Am I?</Text>
-          <Text style={styles.cardText}>Home - {homeData.home_address}</Text>
+        {/* Today's Schedule */}
+        <View style={styles.scheduleSection}>
+          <Text style={styles.sectionTitle}>📅 Today's Schedule</Text>
+          {schedule.length === 0 ? (
+            <View style={styles.emptySchedule}>
+              <Text style={styles.emptyText}>No events scheduled</Text>
+              <Text style={styles.emptySubtext}>Enjoy your free time!</Text>
+            </View>
+          ) : (
+            schedule.map((event, index) => (
+              <View key={index} style={styles.eventCard}>
+                <View style={styles.eventTime}>
+                  <Text style={styles.eventTimeText}>
+                    {dayjs(event.start_time).format('h:mm A')}
+                  </Text>
+                </View>
+                <View style={styles.eventDetails}>
+                  <Text style={styles.eventTitle}>{event.location || 'Event'}</Text>
+                  <Text style={styles.eventDuration}>
+                    {dayjs(event.start_time).format('h:mm A')} - {dayjs(event.end_time).format('h:mm A')}
+                  </Text>
+                </View>
+              </View>
+            ))
+          )}
         </View>
-      )}
-
-      {/* Quick Actions */}
-      <View style={styles.quickActions}>
-        <TouchableOpacity
-          style={styles.quickButton}
-          onPress={() => router.push('/help')}
-        >
-          <Text style={styles.quickButtonText}>❓</Text>
-          <Text style={styles.quickButtonLabel}>Help</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.quickButton}
-          onPress={() => router.push('/contacts')}
-        >
-          <Text style={styles.quickButtonText}>☎️</Text>
-          <Text style={styles.quickButtonLabel}>Call</Text>
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </LinearGradient>
   );
-}
-
-const styles = StyleSheet.create({
+} const styles = StyleSheet.create({
+  gradientContainer: {
+    flex: 1,
+  },
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
   },
-  header: {
-    backgroundColor: '#6fb8d5',
-    padding: 30,
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: 30,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
   },
+  loadingText: {
+    fontSize: 28,
+    color: '#5cc9b1',
+    fontWeight: '600',
+  },
+  header: {
+    padding: 30,
+    paddingTop: 60,
+    alignItems: 'center',
+    marginBottom: 20,
+  },
   time: {
-    fontSize: 48,
+    fontSize: 56,
     fontWeight: '800',
     color: 'white',
   },
-  greeting: {
-    fontSize: 32,
-    fontWeight: '600',
+  date: {
+    fontSize: 22,
     color: 'white',
     marginTop: 10,
+    fontWeight: '600',
   },
-  date: {
-    fontSize: 20,
+  goHomeButton: {
+    margin: 20,
+    marginTop: 0,
+    borderRadius: 20,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  goHomeGradient: {
+    padding: 30,
+    alignItems: 'center',
+  },
+  goHomeIcon: {
+    fontSize: 64,
+    marginBottom: 10,
+  },
+  goHomeText: {
+    fontSize: 32,
+    fontWeight: '800',
     color: 'white',
-    marginTop: 5,
+    letterSpacing: 1,
   },
-  card: {
+  goHomeSubtext: {
+    fontSize: 16,
+    color: 'white',
+    marginTop: 8,
+    fontWeight: '600',
+  },
+  addressCard: {
     backgroundColor: 'white',
-    margin: 15,
+    margin: 20,
     padding: 20,
     borderRadius: 15,
     shadowColor: '#000',
@@ -169,79 +251,81 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
-  cardTitle: {
-    fontSize: 24,
+  addressLabel: {
+    fontSize: 18,
     fontWeight: '700',
-    marginBottom: 15,
-    color: '#333',
-  },
-  cardText: {
-    fontSize: 20,
     color: '#666',
-    lineHeight: 28,
+    marginBottom: 8,
   },
-  scheduleItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  scheduleTime: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: '#6fb8d5',
-    width: 120,
-  },
-  scheduleLocation: {
-    fontSize: 22,
+  addressText: {
+    fontSize: 24,
     color: '#333',
-    flex: 1,
-  },
-  button: {
-    backgroundColor: '#6fb8d5',
-    padding: 18,
-    borderRadius: 12,
-    alignItems: 'center',
-    marginTop: 15,
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 20,
     fontWeight: '600',
   },
-  quickActions: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    padding: 15,
-    marginBottom: 30,
+  scheduleSection: {
+    margin: 20,
+    marginTop: 0,
   },
-  quickButton: {
+  sectionTitle: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#333',
+    marginBottom: 15,
+  },
+  emptySchedule: {
     backgroundColor: 'white',
-    width: 140,
-    height: 140,
-    borderRadius: 20,
+    padding: 40,
+    borderRadius: 15,
     alignItems: 'center',
-    justifyContent: 'center',
+  },
+  emptyText: {
+    fontSize: 22,
+    fontWeight: '600',
+    color: '#999',
+    marginBottom: 8,
+  },
+  emptySubtext: {
+    fontSize: 18,
+    color: '#bbb',
+  },
+  eventCard: {
+    backgroundColor: 'white',
+    borderRadius: 15,
+    padding: 20,
+    marginBottom: 15,
+    flexDirection: 'row',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
   },
-  quickButtonText: {
-    fontSize: 48,
+  eventTime: {
+    marginRight: 20,
+    minWidth: 90,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#e3f2fd',
+    borderRadius: 10,
+    padding: 10,
   },
-  quickButtonLabel: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#333',
-    marginTop: 10,
+  eventTimeText: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#5cc9b1',
   },
-  loadingText: {
+  eventDetails: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  eventTitle: {
     fontSize: 24,
+    fontWeight: '700',
+    color: '#333',
+    marginBottom: 5,
+  },
+  eventDuration: {
+    fontSize: 18,
     color: '#666',
-    textAlign: 'center',
-    marginTop: 100,
   },
 });

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import * as Speech from 'expo-speech';
 import socket from '@/services/socket';
 import api from '@/services/api';
@@ -62,53 +63,71 @@ export default function FAQScreen() {
     };
 
     return (
-        <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-            <Text style={styles.title}>Frequently Asked Questions</Text>
-            <Text style={styles.subtitle}>Tap any answer to hear it spoken</Text>
+        <LinearGradient
+            colors={['#fff3e0', '#ffe0b2', '#ffecb3']}
+            style={styles.gradientContainer}
+        >
+            <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+                <LinearGradient
+                    colors={['#ffb74d', '#ffa726', '#ff9800']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    style={styles.headerCard}
+                >
+                    <Text style={styles.title}>Frequently Asked Questions</Text>
+                    <Text style={styles.subtitle}>Tap any answer to hear it spoken</Text>
+                </LinearGradient>
 
-            {faqs.length === 0 ? (
-                <View style={styles.emptyState}>
-                    <Text style={styles.emptyText}>No FAQs available</Text>
-                    <Text style={styles.emptySubtext}>Your caregiver hasn't added any questions yet</Text>
-                </View>
-            ) : (
-                faqs.map((faq) => (
-                    <View key={faq.id} style={styles.faqCard}>
-                        <Text style={styles.question}>Q: {faq.question}</Text>
-                        <TouchableOpacity
-                            style={[styles.answerButton, speakingId === faq.id && styles.answerButtonActive]}
-                            onPress={() => speakAnswer(faq)}
-                        >
-                            <Text style={styles.answerLabel}>
-                                {speakingId === faq.id ? '🔊 Speaking...' : '🔊 Tap to Hear Answer'}
-                            </Text>
-                            <Text style={styles.answer}>{faq.answer_text}</Text>
-                        </TouchableOpacity>
+                {faqs.length === 0 ? (
+                    <View style={styles.emptyState}>
+                        <Text style={styles.emptyText}>No FAQs available</Text>
+                        <Text style={styles.emptySubtext}>Your caregiver hasn't added any questions yet</Text>
                     </View>
-                ))
-            )}
-        </ScrollView>
+                ) : (
+                    faqs.map((faq) => (
+                        <View key={faq.id} style={styles.faqCard}>
+                            <Text style={styles.question}>Q: {faq.question}</Text>
+                            <TouchableOpacity
+                                style={[styles.answerButton, speakingId === faq.id && styles.answerButtonActive]}
+                                onPress={() => speakAnswer(faq)}
+                            >
+                                <Text style={styles.answerLabel}>
+                                    {speakingId === faq.id ? '🔊 Speaking...' : '🔊 Tap to Hear Answer'}
+                                </Text>
+                                <Text style={styles.answer}>{faq.answer_text}</Text>
+                            </TouchableOpacity>
+                        </View>
+                    ))
+                )}
+            </ScrollView>
+        </LinearGradient>
     );
 }
 
 const styles = StyleSheet.create({
+    gradientContainer: {
+        flex: 1,
+    },
     container: {
         flex: 1,
-        backgroundColor: '#f5f5f5',
     },
     contentContainer: {
         padding: 20,
     },
+    headerCard: {
+        padding: 20,
+        borderRadius: 15,
+        marginBottom: 24,
+    },
     title: {
         fontSize: 28,
         fontWeight: '700',
-        color: '#333',
+        color: 'white',
         marginBottom: 8,
     },
     subtitle: {
         fontSize: 16,
-        color: '#666',
-        marginBottom: 24,
+        color: 'white',
     },
     faqCard: {
         backgroundColor: 'white',
@@ -128,19 +147,19 @@ const styles = StyleSheet.create({
         marginBottom: 12,
     },
     answerButton: {
-        backgroundColor: '#e3f2fd',
+        backgroundColor: '#ffe0b2',
         borderRadius: 8,
         padding: 16,
         borderWidth: 2,
-        borderColor: '#6fb8d5',
+        borderColor: '#ffb74d',
     },
     answerButtonActive: {
-        backgroundColor: '#6fb8d5',
+        backgroundColor: '#ffb74d',
     },
     answerLabel: {
         fontSize: 16,
         fontWeight: '600',
-        color: '#1976d2',
+        color: '#e65100',
         marginBottom: 8,
     },
     answer: {
