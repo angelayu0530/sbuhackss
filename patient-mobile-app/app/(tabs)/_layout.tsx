@@ -25,6 +25,12 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="faq"
+        options={{
+          title: '💭 Help',
+        }}
+      />
+      <Tabs.Screen
         name="contacts"
         options={{
           title: ' 📞 Emergency',
