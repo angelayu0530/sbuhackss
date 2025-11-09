@@ -50,6 +50,25 @@ export const authAPI = {
     });
     return res.json();
   },
+
+  getUser: async (uid: number, token: string) => {
+    const res = await fetch(`${API_BASE}/auth/user/${uid}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return res.json();
+  },
+
+  updateUser: async (uid: number, data: Partial<SignupData>, token: string) => {
+    const res = await fetch(`${API_BASE}/auth/user/${uid}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+    return res.json();
+  },
 };
 
 export const patientAPI = {

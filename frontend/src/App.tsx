@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, useCallback } from "react";
 import { AppShell, Container, Grid, Card, Tabs, Loader, Center } from "@mantine/core";
 import dayjs from "dayjs";
 import { HeaderBar, Sidebar, WelcomeCard, WeekCalendar, MonthCalendarModal, RemindersTab, CommunityTab, ChatAssistant, Login, PatientRegistrationModal } from "./components";
+import Settings from "./pages/Settings";
 import type { Lang, CalendarEvent } from "./lib/types";
 import { tDict } from "./lib/i18n";
 import { IconChecklist, IconWorld } from "@tabler/icons-react";
@@ -11,6 +12,7 @@ import { appointmentsAPI, type Appointment } from "./services/api";
 export default function App() {
   const { user, patient, isLoading: authLoading, isNewSignup } = useAuth();
   const [showPatientModal, setShowPatientModal] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
   useEffect(() => {
     if (user && !patient && isNewSignup) {
@@ -37,7 +39,6 @@ export default function App() {
     location: "Memorial Hospital, Floor 3",
   };
 
-  // Use patient data from auth context if available
   const patientData = patient || {
     name: "Amina Seawolf",
     age: 8,
@@ -95,16 +96,27 @@ export default function App() {
     return <Login />;
   }
 
+  if (showSettings) {
+    return (
+      <AppShell header={{ height: 64 }} padding="md">
+        <HeaderBar />
+        <AppShell.Main>
+          <Settings onBack={() => setShowSettings(false)} />
+        </AppShell.Main>
+      </AppShell>
+    );
+  }
+
   return (
     <>
       <AppShell header={{ height: 64 }} padding="md">
-        <HeaderBar lang={lang} setLang={setLang} apiStatus={apiStatus} />
+        <HeaderBar />
 
         <AppShell.Main>
           <Container fluid p={0} style={{ maxWidth: 1400, marginInline: "auto" }}>
             <Grid gutter="md">
               <Grid.Col span={{ base: 12, md: 2 }}>
-                <Sidebar lang={lang} patient={patientData} doctor={doctor} />
+                <Sidebar lang={lang} patient={patientData} doctor={doctor} onSettingsClick={() => setShowSettings(true)} />
               </Grid.Col>
 
               <Grid.Col span={{ base: 12, md: 7 }}>

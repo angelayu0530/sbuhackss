@@ -38,16 +38,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const login = (newUser: User, newToken: string) => {
-    setUser(newUser);
+      setUser(newUser);
     setToken(newToken);
     setIsNewSignup(false);
     localStorage.setItem("user", JSON.stringify(newUser));
     localStorage.setItem("token", newToken);
-    // Fetch patient data after login
     fetchPatientData(newUser.uid, newToken);
-  };
-
-  const signup = (newUser: User, newToken: string) => {
+  };  const signup = (newUser: User, newToken: string) => {
     setUser(newUser);
     setToken(newToken);
     setIsNewSignup(true);
@@ -71,6 +68,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem("patient", JSON.stringify(newPatient));
   };
 
+  const updateUser = (newUser: User) => {
+    setUser(newUser);
+    localStorage.setItem("user", JSON.stringify(newUser));
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -82,6 +84,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         signup,
         logout,
         setPatient: updatePatient,
+        updateUser,
+        updatePatient,
         isLoading,
       }}
     >

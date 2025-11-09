@@ -1,18 +1,8 @@
-import { AppShell, Group, Title, Text, Box, Button } from "@mantine/core";
+import { AppShell, Group, Title, Box, Button } from "@mantine/core";
 import { IconLogout } from "@tabler/icons-react";
-import type { Lang } from "../../lib/types";
-import { tDict, languages } from "../../lib/i18n";
 import { useAuth } from "../../contexts/useAuth";
 
-export default function HeaderBar({
-  lang,
-  setLang,
-}: {
-  lang: Lang;
-  setLang: (l: Lang) => void;
-  apiStatus: "online" | "offline" | "checking";
-}) {
-  const t = tDict[lang];
+export default function HeaderBar() {
   const { logout } = useAuth();
 
   return (
@@ -23,10 +13,12 @@ export default function HeaderBar({
             <Title order={3}>Placeholder Name</Title>
           </Box>
         </Group>
+        <Group>
           <Button size="sm" variant="filled" leftSection={<IconLogout size={14} />} onClick={logout}>
             Logout
           </Button>
         </Group>
+      </Group>
     </AppShell.Header>
   );
 }

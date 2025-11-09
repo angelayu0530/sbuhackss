@@ -63,7 +63,6 @@ export default function PatientRegistrationModal({ opened, onClose }: PatientReg
       if (data.error) {
         setError(data.error);
       } else {
-        // Store patient info
         const patientData: Patient = {
           pid: data.pid,
           caretaker_id: user.uid,

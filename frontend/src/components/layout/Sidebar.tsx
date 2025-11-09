@@ -7,10 +7,12 @@ export default function Sidebar({
   lang,
   patient,
   doctor,
+  onSettingsClick,
 }: {
   lang: Lang;
   patient: any;
   doctor: any;
+  onSettingsClick?: () => void;
 }) {
   const t = tDict[lang];
   return (
@@ -60,7 +62,7 @@ export default function Sidebar({
         </Accordion.Item>
       </Accordion>
 
-      <Button fullWidth leftSection={<IconSettings size={16} />} style={{ marginTop: "auto" }}>
+      <Button fullWidth leftSection={<IconSettings size={16} />} onClick={onSettingsClick} style={{ marginTop: "auto" }}>
         {t.settings}
       </Button>
     </Stack>

@@ -39,9 +39,8 @@ export type Doctor = {
   location: string;
 };
 
-// Hours shown in week view
-export const HOURS_START = 6;   // 6 AM
-export const HOURS_END = 22;    // 10 PM
+export const HOURS_START = 6;
+export const HOURS_END = 22;
 
 export const hoursArray = (start = HOURS_START, end = HOURS_END) =>
   Array.from({ length: end - start + 1 }, (_, i) => start + i);

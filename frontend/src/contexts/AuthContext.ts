@@ -10,6 +10,8 @@ export interface AuthContextType {
   signup: (user: User, token: string) => void;
   logout: () => void;
   setPatient: (patient: Patient) => void;
+  updateUser: (user: User) => void;
+  updatePatient: (patient: Patient) => void;
   isLoading: boolean;
 }
 
