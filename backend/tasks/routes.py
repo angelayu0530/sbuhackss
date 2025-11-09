@@ -4,7 +4,6 @@ from datetime import datetime
 
 tasks_bp = Blueprint('tasks', __name__)
 
-# Handle OPTIONS requests for CORS preflight
 @tasks_bp.before_request
 def handle_preflight():
     if request.method == "OPTIONS":

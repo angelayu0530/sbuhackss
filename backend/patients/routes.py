@@ -1,10 +1,10 @@
 from flask import Blueprint, request, jsonify
+from flask_jwt_extended import jwt_required
 from models import Patient, User, db
 from datetime import datetime
 
 patients_bp = Blueprint('patients', __name__)
 
-# Handle OPTIONS requests for CORS preflight
 @patients_bp.before_request
 def handle_preflight():
     if request.method == "OPTIONS":
@@ -41,6 +41,7 @@ def create_patient():
     return jsonify({'message': 'Patient created', 'pid': patient.pid}), 201
 
 @patients_bp.route('/<int:pid>', methods=['GET', 'OPTIONS'])
+@jwt_required()
 def get_patient(pid):
     if request.method == 'OPTIONS':
         return '', 200
@@ -79,6 +80,7 @@ def list_patients():
     ])
 
 @patients_bp.route('/<int:pid>', methods=['PUT', 'OPTIONS'])
+@jwt_required()
 def update_patient(pid):
     if request.method == 'OPTIONS':
         return '', 200
@@ -90,9 +92,20 @@ def update_patient(pid):
         if field in data:
             setattr(patient, field, data[field])
     db.session.commit()
-    return jsonify({'message': 'Patient updated'})
+    return jsonify({'message': 'Patient updated', 'patient': {
+        'pid': patient.pid,
+        'caretaker_id': patient.caretaker_id,
+        'name': patient.name,
+        'age': patient.age,
+        'gender': patient.gender,
+        'medical_summary': patient.medical_summary,
+        'emergency_contact': patient.emergency_contact,
+        'active': patient.active,
+        'created_at': patient.created_at
+    }})
 
 @patients_bp.route('/<int:pid>', methods=['DELETE', 'OPTIONS'])
+@jwt_required()
 def delete_patient(pid):
     if request.method == 'OPTIONS':
         return '', 200

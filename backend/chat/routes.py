@@ -3,7 +3,6 @@ import google.genai as genai
 
 chat_bp = Blueprint('chat', __name__)
 
-# Store chat sessions per user (or globally for now)
 chat_sessions = {}
 clients = {}
 SESSION_ID = "default"
@@ -37,14 +36,11 @@ def chat_gemini():
             chat_sessions[session_id] = clients[session_id].chats.create(model="gemini-2.5-flash")
         
         chat = chat_sessions[session_id]
-        
-        # Send message and get response
         response = chat.send_message(user_message)
         
         return jsonify({'reply': response.text})
     except Exception as e:
         print(f"Chat error: {e}")
-        # Clear the session on error so it can be recreated
         if session_id in chat_sessions:
             del chat_sessions[session_id]
         if session_id in clients:

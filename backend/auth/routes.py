@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from datetime import timedelta
 from models import User, db
 
@@ -81,4 +81,57 @@ def login():
             }
         }), 200
     except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@auth_bp.route('/user/<int:uid>', methods=['GET', 'OPTIONS'])
+@jwt_required()
+def get_user(uid):
+    if request.method == 'OPTIONS':
+        return '', 200
+    user = User.query.get(uid)
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+    return jsonify({
+        'uid': user.uid,
+        'email': user.email,
+        'name': user.name,
+        'phone': user.phone,
+        'active': user.active,
+        'created_at': user.created_at
+    })
+
+
+@auth_bp.route('/user/<int:uid>', methods=['PUT', 'OPTIONS'])
+@jwt_required()
+def update_user(uid):
+    if request.method == 'OPTIONS':
+        return '', 200
+    try:
+        user = User.query.get(uid)
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+        data = request.get_json()
+        
+        if 'name' in data:
+            user.name = data['name']
+        if 'phone' in data:
+            user.phone = data['phone']
+        if 'email' in data and data['email'] != user.email:
+            if User.query.filter_by(email=data['email']).first():
+                return jsonify({'error': 'Email already in use'}), 409
+            user.email = data['email']
+        
+        db.session.commit()
+        return jsonify({
+            'message': 'User updated',
+            'user': {
+                'uid': user.uid,
+                'email': user.email,
+                'name': user.name,
+                'phone': user.phone
+            }
+        }), 200
+    except Exception as e:
+        db.session.rollback()
         return jsonify({'error': str(e)}), 500

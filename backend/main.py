@@ -22,14 +22,12 @@ load_dotenv()
 app = Flask(__name__)
 app.config['JWT_SECRET_KEY'] = os.getenv('SECRET_KEY')
 
-# Enable CORS with proper configuration
 CORS(app, 
      resources={r"/*": {"origins": "*"}},
      allow_headers=["Content-Type", "Authorization"],
      methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
      supports_credentials=True)
 
-# Before request hook to handle CORS preflight
 @app.before_request
 def handle_preflight():
     from flask import request
