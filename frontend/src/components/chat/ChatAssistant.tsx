@@ -1,13 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Card, Group, ThemeIcon, Title, Divider, ScrollArea, Stack, Text, TextInput, Button, ActionIcon } from "@mantine/core";
-import { IconRobot, IconSend, IconTrash } from "@tabler/icons-react";
+import { IconRobot, IconSend, IconTrash, IconCalendarPlus, IconReportMedical, IconBulb } from "@tabler/icons-react";
 import type { Lang } from "../../lib/types";
 import { tDict } from "../../lib/i18n";
 import { chatAPI } from "../../services/api";
+import { useAuth } from "../../contexts/useAuth";
 
 type Msg = { from: "ai" | "user"; text: string };
 
 export default function ChatAssistant({ lang }: { lang: Lang }) {
+  const { user, patient } = useAuth();
   const t = useMemo(() => tDict[lang], [lang]);
 
   const [messages, setMessages] = useState<Msg[]>(() => {
@@ -40,7 +42,7 @@ export default function ChatAssistant({ lang }: { lang: Lang }) {
     setInput("");
     setIsLoading(true);
     try {
-      const data = await chatAPI.sendMessage(msg);
+      const data = await chatAPI.sendMessage(msg, patient?.pid, user?.uid);
       if (data.reply) {
         setMessages((m) => [...m, { from: "ai", text: data.reply }]);
       } else if (data.error) {
@@ -113,17 +115,53 @@ export default function ChatAssistant({ lang }: { lang: Lang }) {
         </Button>
       </Group>
 
-      <Group mt="sm" gap="xs" grow>
-        <Button variant="light" size="xs" onClick={() => sendMessage(t.translatePrescription)}>
-          {t.translatePrescription}
+      <Stack mt="sm" gap="xs">
+        <Group gap="xs" grow>
+          <Button variant="light" size="xs" onClick={() => sendMessage(t.translatePrescription)}>
+            {t.translatePrescription}
+          </Button>
+          <Button variant="light" size="xs" onClick={() => sendMessage(t.explainDiagnosis)}>
+            {t.explainDiagnosis}
+          </Button>
+          <Button variant="light" size="xs" onClick={() => sendMessage(t.askDoctor)}>
+            {t.askDoctor}
+          </Button>
+        </Group>
+
+        <Divider label="AI Agent Actions" labelPosition="center" />
+
+        <Group gap="xs" grow>
+          <Button
+            variant="gradient"
+            gradient={{ from: 'blue', to: 'cyan' }}
+            size="xs"
+            leftSection={<IconCalendarPlus size={14} />}
+            onClick={() => sendMessage("Schedule an appointment for me")}
+          >
+            Create Event
+          </Button>
+          <Button
+            variant="gradient"
+            gradient={{ from: 'grape', to: 'violet' }}
+            size="xs"
+            leftSection={<IconReportMedical size={14} />}
+            onClick={() => sendMessage("Generate my health report")}
+          >
+            Health Report
+          </Button>
+        </Group>
+
+        <Button
+          variant="gradient"
+          gradient={{ from: 'orange', to: 'red' }}
+          size="xs"
+          leftSection={<IconBulb size={14} />}
+          onClick={() => sendMessage("Recommend community events for health and wellness")}
+          fullWidth
+        >
+          Recommend Events
         </Button>
-        <Button variant="light" size="xs" onClick={() => sendMessage(t.explainDiagnosis)}>
-          {t.explainDiagnosis}
-        </Button>
-        <Button variant="light" size="xs" onClick={() => sendMessage(t.askDoctor)}>
-          {t.askDoctor}
-        </Button>
-      </Group>
+      </Stack>
     </Card>
   );
 }

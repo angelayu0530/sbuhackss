@@ -161,11 +161,15 @@ export const tasksAPI = {
 };
 
 export const chatAPI = {
-  sendMessage: async (message: string) => {
+  sendMessage: async (message: string, patientId?: number, doctorId?: number) => {
     const res = await fetch(`${API_BASE}/chat/gemini`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message }),
+      body: JSON.stringify({
+        message,
+        patientId,
+        doctorId
+      }),
     });
     return res.json();
   },
