@@ -2,7 +2,7 @@ import type { Lang } from "./types";
 
 export const tDict = {
   en: {
-    welcome: "Welcome, seawolf",
+    welcome: "Welcome, Seawolf",
     doctorInfo: "Doctor Information",
     patientInfo: "My Patient's Profile",
     communityEvents: "Community Events",

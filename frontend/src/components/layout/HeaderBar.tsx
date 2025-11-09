@@ -19,7 +19,7 @@ export default function HeaderBar({
       <Group justify="space-between" p="md">
         <Group>
           <Box>
-            <Title order={3}>Placeholder Name</Title>
+            <Title order={3}>DemeCare</Title>
           </Box>
         </Group>
         <Group>
