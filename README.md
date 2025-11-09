@@ -1,4 +1,4 @@
-# CareHeart: Supporting Dementia Caregivers
+# CareHeart: Supporting Dementia Caregivers ❤️
 
 ### _A dashboard designed to support dementia patient caregivers in managing daily responsibilities and monitoring patient well-being._
 
