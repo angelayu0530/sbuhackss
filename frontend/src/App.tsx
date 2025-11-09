@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { AppShell, Container, Grid, Card, Tabs, Loader, Center } from "@mantine/core";
 import dayjs from "dayjs";
 import { HeaderBar, Sidebar, WelcomeCard, WeekCalendar, MonthCalendarModal, RemindersTab, CommunityTab, ChatAssistant, Login, PatientRegistrationModal } from "./components";
@@ -6,6 +6,7 @@ import type { Lang, CalendarEvent } from "./lib/types";
 import { tDict } from "./lib/i18n";
 import { IconChecklist, IconWorld } from "@tabler/icons-react";
 import { useAuth } from "./contexts/useAuth";
+import { appointmentsAPI, type Appointment } from "./services/api";
 
 export default function App() {
   const { user, patient, isLoading: authLoading, isNewSignup } = useAuth();
@@ -45,15 +46,33 @@ export default function App() {
     notes: "Interpreter preferred (Spanish)",
   };
 
-  // Events for calendar
-  const weekStart = dayjs().startOf("week").add(1, "day"); // Monday
-  const events: CalendarEvent[] = [
-    { id: "e1", title: "PT check-in", start: weekStart.hour(10).minute(0), end: weekStart.hour(11).minute(0) },
-    { id: "e2", title: "Pediatric Check-up", start: weekStart.add(2, "day").hour(14).minute(0), end: weekStart.add(2, "day").hour(15).minute(0) },
-    { id: "e3", title: "Lab work", start: weekStart.add(3, "day").hour(9).minute(30), end: weekStart.add(3, "day").hour(10).minute(0) },
-    { id: "e4", title: "Dental cleaning", start: weekStart.add(4, "day").hour(15).minute(30), end: weekStart.add(4, "day").hour(16).minute(30) },
-    { id: "e5", title: "Care team call", start: weekStart.add(4, "day").hour(15).minute(45), end: weekStart.add(4, "day").hour(16).minute(15) },
-  ];
+  // Events from appointments
+  const [events, setEvents] = useState<CalendarEvent[]>([]);
+
+  // Fetch appointments from backend
+  const fetchAppointments = useCallback(async () => {
+    try {
+      const appointments: Appointment[] = await appointmentsAPI.list();
+      const calendarEvents: CalendarEvent[] = appointments
+        .filter(apt => apt.active)
+        .map(apt => ({
+          id: apt.aid.toString(),
+          title: apt.location || "Appointment",
+          start: dayjs(apt.start_time),
+          end: dayjs(apt.end_time),
+        }));
+      setEvents(calendarEvents);
+    } catch (error) {
+      console.error("Failed to fetch appointments:", error);
+    }
+  }, []);
+
+  // Fetch appointments on mount
+  useEffect(() => {
+    if (user) {
+      fetchAppointments();
+    }
+  }, [user, fetchAppointments]);
 
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [tasks, setTasks] = useState([
@@ -120,7 +139,23 @@ export default function App() {
           </Container>
         </AppShell.Main>
 
-        <MonthCalendarModal opened={calendarOpen} onClose={() => setCalendarOpen(false)} events={events} />
+        <MonthCalendarModal
+          opened={calendarOpen}
+          onClose={() => setCalendarOpen(false)}
+          events={events}
+          patientId={patient?.pid}
+          doctorId={user?.uid}
+          onCreateEvent={async (appointmentData) => {
+            try {
+              await appointmentsAPI.create(appointmentData);
+              // Refresh appointments after creating
+              await fetchAppointments();
+            } catch (error) {
+              console.error('Error creating appointment:', error);
+              alert('Failed to create appointment. Please try again.');
+            }
+          }}
+        />
       </AppShell>
 
       <PatientRegistrationModal opened={showPatientModal} onClose={() => setShowPatientModal(false)} />

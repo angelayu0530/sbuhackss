@@ -1,5 +1,5 @@
-import { Modal, Group, Text, Grid, Card, Stack, Divider, ActionIcon, Box, Button, TextInput, Textarea, Select, Collapse } from "@mantine/core";
-import { IconCalendar, IconChevronLeft, IconChevronRight, IconCalendarEvent, IconX, IconPlus, IconMapPin, IconClock, IconRepeat } from "@tabler/icons-react";
+import { Modal, Group, Text, Grid, Card, Stack, Divider, ActionIcon, Box, Button, TextInput, Collapse } from "@mantine/core";
+import { IconCalendar, IconChevronLeft, IconChevronRight, IconCalendarEvent, IconX, IconPlus, IconMapPin, IconClock } from "@tabler/icons-react";
 import dayjs, { Dayjs } from "dayjs";
 import { useEffect, useState } from "react";
 import type { CalendarEvent } from "../../lib/types";
@@ -10,11 +10,17 @@ export default function MonthCalendarModal({
   onClose,
   events,
   refMonth = dayjs(),
+  onCreateEvent,
+  patientId,
+  doctorId,
 }: {
   opened: boolean;
   onClose: () => void;
   events: CalendarEvent[];
   refMonth?: Dayjs;
+  onCreateEvent?: (event: { patient_id: number; doctor_id: number; start_time: string; end_time: string; location?: string }) => Promise<void> | void;
+  patientId?: number;
+  doctorId?: number;
 }) {
   // Local month state for navigation
   const [month, setMonth] = useState<Dayjs>(() => refMonth.startOf("month"));
@@ -28,8 +34,6 @@ export default function MonthCalendarModal({
   const [eventLocation, setEventLocation] = useState("");
   const [eventStartTime, setEventStartTime] = useState("09:00");
   const [eventEndTime, setEventEndTime] = useState("10:00");
-  const [eventRepeat, setEventRepeat] = useState<string | null>("none");
-  const [eventNotes, setEventNotes] = useState("");
 
   // Track previous opened state to detect when modal opens
   const [prevOpened, setPrevOpened] = useState(opened);
@@ -51,31 +55,27 @@ export default function MonthCalendarModal({
     setEventLocation("");
     setEventStartTime("09:00");
     setEventEndTime("10:00");
-    setEventRepeat("none");
-    setEventNotes("");
   }, [selectedDay]);
 
-  const handleCreateEvent = () => {
-    if (!selectedDay || !eventName) return;
+  const handleCreateEvent = async () => {
+    if (!selectedDay || !eventName || !patientId || !doctorId) return;
 
     // Parse time strings
     const [startHour, startMin] = eventStartTime.split(":").map(Number);
     const [endHour, endMin] = eventEndTime.split(":").map(Number);
 
-    const newEvent: CalendarEvent = {
-      id: `event-${Date.now()}`,
-      title: eventName,
-      start: selectedDay.hour(startHour).minute(startMin),
-      end: selectedDay.hour(endHour).minute(endMin),
+    const appointmentData = {
+      patient_id: patientId,
+      doctor_id: doctorId,
+      start_time: selectedDay.hour(startHour).minute(startMin).toISOString(),
+      end_time: selectedDay.hour(endHour).minute(endMin).toISOString(),
+      location: eventLocation || undefined,
     };
 
-    // TODO: Here you would typically call an API to save the event
-    console.log("Creating event:", {
-      ...newEvent,
-      location: eventLocation,
-      repeat: eventRepeat,
-      notes: eventNotes,
-    });
+    // Call the callback if provided
+    if (onCreateEvent) {
+      await onCreateEvent(appointmentData);
+    }
 
     // Reset form
     setShowCreateForm(false);
@@ -83,11 +83,7 @@ export default function MonthCalendarModal({
     setEventLocation("");
     setEventStartTime("09:00");
     setEventEndTime("10:00");
-    setEventRepeat("none");
-    setEventNotes("");
-  };
-
-  const grid = getMonthGrid(month);
+  }; const grid = getMonthGrid(month);
   const byDay = groupByDay(events);
 
   const weekdayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -342,34 +338,10 @@ export default function MonthCalendarModal({
                     />
                   </Group>
 
-                  <Select
-                    label="Repeat"
-                    placeholder="Select repeat option"
-                    value={eventRepeat}
-                    onChange={setEventRepeat}
-                    leftSection={<IconRepeat size={16} />}
-                    data={[
-                      { value: "none", label: "Does not repeat" },
-                      { value: "daily", label: "Daily" },
-                      { value: "weekly", label: "Weekly" },
-                      { value: "monthly", label: "Monthly" },
-                      { value: "yearly", label: "Yearly" },
-                      { value: "weekdays", label: "Every weekday (Mon-Fri)" },
-                    ]}
-                  />
-
-                  <Textarea
-                    label="Notes"
-                    placeholder="Add notes or description (optional)"
-                    value={eventNotes}
-                    onChange={(e) => setEventNotes(e.target.value)}
-                    minRows={3}
-                  />
-
                   <Button
                     fullWidth
                     onClick={handleCreateEvent}
-                    disabled={!eventName}
+                    disabled={!eventName || !patientId || !doctorId}
                   >
                     Save Event
                   </Button>

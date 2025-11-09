@@ -160,3 +160,69 @@ export const chatAPI = {
     return res.json();
   },
 };
+
+export interface AppointmentData {
+  patient_id: number;
+  doctor_id: number;
+  start_time: string;
+  end_time: string;
+  location?: string;
+}
+
+export interface Appointment extends AppointmentData {
+  aid: number;
+  active: boolean;
+  created_at: string;
+}
+
+export const appointmentsAPI = {
+  create: async (data: AppointmentData) => {
+    const res = await fetch(`${API_BASE}/appointments/`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      throw new Error(`Failed to create appointment: ${res.statusText}`);
+    }
+    return res.json();
+  },
+
+  list: async () => {
+    const res = await fetch(`${API_BASE}/appointments/`);
+    if (!res.ok) {
+      throw new Error(`Failed to fetch appointments: ${res.statusText}`);
+    }
+    return res.json();
+  },
+
+  get: async (aid: number) => {
+    const res = await fetch(`${API_BASE}/appointments/${aid}`);
+    if (!res.ok) {
+      throw new Error(`Failed to fetch appointment: ${res.statusText}`);
+    }
+    return res.json();
+  },
+
+  update: async (aid: number, data: Partial<AppointmentData>) => {
+    const res = await fetch(`${API_BASE}/appointments/${aid}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      throw new Error(`Failed to update appointment: ${res.statusText}`);
+    }
+    return res.json();
+  },
+
+  delete: async (aid: number) => {
+    const res = await fetch(`${API_BASE}/appointments/${aid}`, {
+      method: "DELETE",
+    });
+    if (!res.ok) {
+      throw new Error(`Failed to delete appointment: ${res.statusText}`);
+    }
+    return res.json();
+  },
+};
