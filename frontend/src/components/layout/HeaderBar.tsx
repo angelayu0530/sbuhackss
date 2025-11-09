@@ -15,7 +15,7 @@ export default function HeaderBar() {
         </Group>
         <Group>
           <Button size="sm" variant="filled" leftSection={<IconLogout size={14} />} onClick={logout}>
-            {t.logout}
+            Logout
           </Button>
         </Group>
       </Group>

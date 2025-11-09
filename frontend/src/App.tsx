@@ -135,7 +135,7 @@ export default function App() {
                     </Tabs.List>
 
                     <Tabs.Panel value="reminders" pt="md">
-                      <RemindersTab lang={lang} tasks={tasks} setTasks={setTasks} />
+                      <RemindersTab tasks={tasks} setTasks={setTasks} />
                     </Tabs.Panel>
                     <Tabs.Panel value="community" pt="md">
                       <CommunityTab />
