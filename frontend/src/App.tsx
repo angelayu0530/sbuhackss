@@ -5,9 +5,11 @@ import { HeaderBar, Sidebar, WelcomeCard, WeekCalendar, MonthCalendarModal, Remi
 import Settings from "./pages/Settings";
 import type { Lang, CalendarEvent } from "./lib/types";
 import { tDict } from "./lib/i18n";
-import { IconChecklist, IconWorld } from "@tabler/icons-react";
+import { IconChecklist, IconWorld, IconDeviceMobile } from "@tabler/icons-react";
 import { useAuth } from "./contexts/useAuth";
 import { appointmentsAPI, type Appointment } from "./services/api";
+import PatientDisplaySettings from "./components/patient-display/PatientDisplaySettings";
+
 
 export default function App() {
   const { user, patient, isLoading: authLoading, isNewSignup } = useAuth();
@@ -130,6 +132,9 @@ export default function App() {
                       <Tabs.Tab value="community" leftSection={<IconWorld size={16} />}>
                         {t.communityEvents}
                       </Tabs.Tab>
+                      <Tabs.Tab value="mobile-settings" leftSection={<IconDeviceMobile size={16} />}>
+                        Patient Mobile App
+                      </Tabs.Tab>
                     </Tabs.List>
 
                     <Tabs.Panel value="reminders" pt="md">
@@ -137,6 +142,9 @@ export default function App() {
                     </Tabs.Panel>
                     <Tabs.Panel value="community" pt="md">
                       <CommunityTab />
+                    </Tabs.Panel>
+                    <Tabs.Panel value="mobile-settings" pt="md">
+                      <PatientDisplaySettings />
                     </Tabs.Panel>
                   </Tabs>
                 </Card>

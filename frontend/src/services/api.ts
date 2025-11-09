@@ -249,3 +249,213 @@ export const appointmentsAPI = {
     return res.json();
   },
 };
+
+// Patient Display (Mobile App) API
+export interface PatientDisplayConfig {
+  id?: number;
+  patient_id?: number;
+  show_schedule?: boolean;
+  show_navigation?: boolean;
+  show_faq?: boolean;
+  gps_tracking_enabled?: boolean;
+  voice_reminders_enabled?: boolean;
+  home_address?: string;
+  caregiver_status?: string;
+}
+
+export interface NavigationLandmark {
+  id?: number;
+  patient_id?: number;
+  step_number: number;
+  title: string;
+  description?: string;
+  photo_url?: string;
+}
+
+export interface PatientFAQ {
+  id?: number;
+  patient_id?: number;
+  question: string;
+  answer_text: string;
+  voice_recording_url?: string;
+}
+
+export interface EmergencyContact {
+  id?: number;
+  patient_id?: number;
+  name: string;
+  relationship?: string;
+  phone: string;
+  photo_url?: string;
+  is_primary?: boolean;
+}
+
+export const patientDisplayAPI = {
+  // Config
+  getConfig: async (patientId: number, token: string): Promise<PatientDisplayConfig> => {
+    const res = await fetch(`${API_BASE}/patient-display/config/${patientId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) throw new Error(`Failed to get config: ${res.statusText}`);
+    return res.json();
+  },
+
+  updateConfig: async (patientId: number, data: Partial<PatientDisplayConfig>, token: string) => {
+    const res = await fetch(`${API_BASE}/patient-display/config/${patientId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error(`Failed to update config: ${res.statusText}`);
+    return res.json();
+  },
+
+  // Landmarks
+  getLandmarks: async (patientId: number, token: string): Promise<NavigationLandmark[]> => {
+    const res = await fetch(`${API_BASE}/patient-display/landmarks/${patientId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) throw new Error(`Failed to get landmarks: ${res.statusText}`);
+    return res.json();
+  },
+
+  createLandmark: async (patientId: number, data: NavigationLandmark, token: string) => {
+    const res = await fetch(`${API_BASE}/patient-display/landmarks/${patientId}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error(`Failed to create landmark: ${res.statusText}`);
+    return res.json();
+  },
+
+  updateLandmark: async (landmarkId: number, data: Partial<NavigationLandmark>, token: string) => {
+    const res = await fetch(`${API_BASE}/patient-display/landmarks/${landmarkId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error(`Failed to update landmark: ${res.statusText}`);
+    return res.json();
+  },
+
+  deleteLandmark: async (landmarkId: number, token: string) => {
+    const res = await fetch(`${API_BASE}/patient-display/landmarks/${landmarkId}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) throw new Error(`Failed to delete landmark: ${res.statusText}`);
+    return res.json();
+  },
+
+  // FAQs
+  getFAQs: async (patientId: number, token: string): Promise<PatientFAQ[]> => {
+    const res = await fetch(`${API_BASE}/patient-display/faqs/${patientId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) throw new Error(`Failed to get FAQs: ${res.statusText}`);
+    return res.json();
+  },
+
+  createFAQ: async (patientId: number, data: PatientFAQ, token: string) => {
+    const res = await fetch(`${API_BASE}/patient-display/faqs/${patientId}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error(`Failed to create FAQ: ${res.statusText}`);
+    return res.json();
+  },
+
+  updateFAQ: async (faqId: number, data: Partial<PatientFAQ>, token: string) => {
+    const res = await fetch(`${API_BASE}/patient-display/faqs/${faqId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error(`Failed to update FAQ: ${res.statusText}`);
+    return res.json();
+  },
+
+  deleteFAQ: async (faqId: number, token: string) => {
+    const res = await fetch(`${API_BASE}/patient-display/faqs/${faqId}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) throw new Error(`Failed to delete FAQ: ${res.statusText}`);
+    return res.json();
+  },
+
+  // Contacts
+  getContacts: async (patientId: number, token: string): Promise<EmergencyContact[]> => {
+    const res = await fetch(`${API_BASE}/patient-display/contacts/${patientId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) throw new Error(`Failed to get contacts: ${res.statusText}`);
+    return res.json();
+  },
+
+  createContact: async (patientId: number, data: EmergencyContact, token: string) => {
+    const res = await fetch(`${API_BASE}/patient-display/contacts/${patientId}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error(`Failed to create contact: ${res.statusText}`);
+    return res.json();
+  },
+
+  updateContact: async (contactId: number, data: Partial<EmergencyContact>, token: string) => {
+    const res = await fetch(`${API_BASE}/patient-display/contacts/${contactId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error(`Failed to update contact: ${res.statusText}`);
+    return res.json();
+  },
+
+  deleteContact: async (contactId: number, token: string) => {
+    const res = await fetch(`${API_BASE}/patient-display/contacts/${contactId}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) throw new Error(`Failed to delete contact: ${res.statusText}`);
+    return res.json();
+  },
+
+  // Urgent message
+  sendUrgentMessage: async (patientId: number, message: string, token: string) => {
+    const res = await fetch(`${API_BASE}/patient-display/urgent-message/${patientId}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ message }),
+    });
+    if (!res.ok) throw new Error(`Failed to send urgent message: ${res.statusText}`);
+    return res.json();
+  },
+};

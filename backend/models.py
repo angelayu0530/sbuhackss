@@ -159,3 +159,77 @@ class Recommendation(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     patient = db.relationship('Patient', backref='recommendations')
+
+
+# Patient Display Configuration for Mobile App
+class PatientDisplayConfig(db.Model):
+    __tablename__ = 'patient_display_config'
+
+    id = db.Column(db.Integer, primary_key=True)
+    patient_id = db.Column(db.Integer, db.ForeignKey('patients.pid'), unique=True, nullable=False)
+    show_schedule = db.Column(db.Boolean, default=True)
+    show_navigation = db.Column(db.Boolean, default=True)
+    show_faq = db.Column(db.Boolean, default=True)
+    home_address = db.Column(db.String(300))
+    gps_tracking_enabled = db.Column(db.Boolean, default=False)
+    geofence_radius_meters = db.Column(db.Integer, default=500)
+    voice_reminders_enabled = db.Column(db.Boolean, default=True)
+    reminder_minutes_before = db.Column(db.Integer, default=5)
+    auto_mark_complete = db.Column(db.Boolean, default=True)
+    caregiver_status = db.Column(db.String(100))  # "At work", "At home", etc.
+    active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    patient = db.relationship('Patient', backref=db.backref('display_config', uselist=False))
+
+
+# Navigation Landmarks for "How to Get Home"
+class NavigationLandmark(db.Model):
+    __tablename__ = 'navigation_landmarks'
+
+    id = db.Column(db.Integer, primary_key=True)
+    patient_id = db.Column(db.Integer, db.ForeignKey('patients.pid'), nullable=False)
+    step_number = db.Column(db.Integer, nullable=False)
+    title = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text)
+    photo_url = db.Column(db.String(500))
+    active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    patient = db.relationship('Patient', backref='navigation_landmarks')
+
+
+# FAQ for repetitive questions
+class PatientFAQ(db.Model):
+    __tablename__ = 'patient_faqs'
+
+    id = db.Column(db.Integer, primary_key=True)
+    patient_id = db.Column(db.Integer, db.ForeignKey('patients.pid'), nullable=False)
+    question = db.Column(db.String(300), nullable=False)
+    answer_text = db.Column(db.Text, nullable=False)
+    voice_recording_url = db.Column(db.String(500))
+    order_index = db.Column(db.Integer, default=0)  # For sorting most common questions
+    active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    patient = db.relationship('Patient', backref='faqs')
+
+
+# Emergency contacts for patient
+class EmergencyContact(db.Model):
+    __tablename__ = 'emergency_contacts'
+
+    id = db.Column(db.Integer, primary_key=True)
+    patient_id = db.Column(db.Integer, db.ForeignKey('patients.pid'), nullable=False)
+    name = db.Column(db.String(100), nullable=False)
+    relationship = db.Column(db.String(50))  # "Daughter", "Son", etc.
+    phone = db.Column(db.String(20), nullable=False)
+    photo_url = db.Column(db.String(500))
+    is_primary = db.Column(db.Boolean, default=False)
+    order_index = db.Column(db.Integer, default=0)
+    active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    patient = db.relationship('Patient', backref='emergency_contacts')
