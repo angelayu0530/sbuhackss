@@ -70,7 +70,7 @@ export default function Login() {
       <Container size="sm" py="xl">
         <Paper radius="md" p="xl" withBorder>
           <Center mb="xl">
-            <Title order={1}>HealthBridge</Title>
+            <Title order={1}>DemænCare</Title>
           </Center>
 
           {error && (

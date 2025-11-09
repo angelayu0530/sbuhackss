@@ -5,6 +5,7 @@ export { default as WeekCalendar } from "./calendar/WeekCalendar";
 export { default as MonthCalendarModal } from "./calendar/MonthCalendarModal";
 export { default as RemindersTab } from "./community/RemindersTab";
 export { default as CommunityTab } from "./community/CommunityTab";
+export { default as AnalyticsTab } from "./community/AnalyticsTab";
 export { default as ChatAssistant } from "./chat/ChatAssistant";
 export { default as Login } from "./Login";
 export { default as PatientRegistrationModal } from "./PatientRegistrationModal";

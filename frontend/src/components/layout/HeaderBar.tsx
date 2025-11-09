@@ -43,7 +43,7 @@ export default function HeaderBar({
               }}
             >
               <IconHeart size={28} style={{ marginRight: 8, verticalAlign: 'middle' }} />
-              CareHeart
+              DemænCare
             </Title>
           </Box>
           <Badge

@@ -15,6 +15,7 @@ from medications.routes import medications_bp
 from recommendations.routes import recommendations_bp
 from appointments.routes import appointments_bp
 from patient_display.routes import patient_display_bp
+from patient_alerts.routes import patient_alerts_bp
 from socketio_instance import socketio
 from dotenv import load_dotenv
 import os
@@ -57,6 +58,7 @@ app.register_blueprint(medications_bp, url_prefix='/medications')
 app.register_blueprint(recommendations_bp, url_prefix='/recommendations')
 app.register_blueprint(appointments_bp, url_prefix='/appointments')
 app.register_blueprint(patient_display_bp, url_prefix='/patient-display')
+app.register_blueprint(patient_alerts_bp, url_prefix='/patient-alerts')
 
 @app.route('/', methods=['GET'])
 def health():

@@ -8,6 +8,34 @@ import { useAuth } from "../../contexts/useAuth";
 
 type Msg = { from: "ai" | "user"; text: string };
 
+// Convert markdown to plain text
+const stripMarkdown = (text: string): string => {
+  return text
+    // Remove bold **text** or __text__
+    .replace(/\*\*(.+?)\*\*/g, '$1')
+    .replace(/__(.+?)__/g, '$1')
+    // Remove italic *text* or _text_
+    .replace(/\*(.+?)\*/g, '$1')
+    .replace(/_(.+?)_/g, '$1')
+    // Remove inline code `code`
+    .replace(/`(.+?)`/g, '$1')
+    // Remove headers # ## ###
+    .replace(/^#{1,6}\s+/gm, '')
+    // Remove links [text](url)
+    .replace(/\[(.+?)\]\(.+?\)/g, '$1')
+    // Remove images ![alt](url)
+    .replace(/!\[(.+?)\]\(.+?\)/g, '$1')
+    // Remove blockquotes
+    .replace(/^\>\s+/gm, '')
+    // Remove horizontal rules
+    .replace(/^[\-\*\_]{3,}\s*$/gm, '')
+    // Remove list markers
+    .replace(/^[\-\*\+]\s+/gm, '• ')
+    .replace(/^\d+\.\s+/gm, '• ')
+    // Trim extra whitespace
+    .trim();
+};
+
 export default function ChatAssistant({ lang }: { lang: Lang }) {
   const { user, patient } = useAuth();
   const t = useMemo(() => tDict[lang], [lang]);
@@ -125,7 +153,9 @@ export default function ChatAssistant({ lang }: { lang: Lang }) {
                     : "0 2px 8px rgba(0, 0, 0, 0.05)",
                 }}
               >
-                <Text size="sm" style={{ lineHeight: 1.6 }}>{m.text}</Text>
+                <Text size="sm" style={{ lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
+                  {m.from === "ai" ? stripMarkdown(m.text) : m.text}
+                </Text>
               </Card>
             </Group>
           ))}

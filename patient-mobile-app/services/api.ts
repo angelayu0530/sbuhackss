@@ -57,6 +57,47 @@ const api = {
         const res = await fetch(`${API_BASE}/patient-display/mobile/${PATIENT_ID}/contacts`);
         return res.json();
     },
+
+    // Patient Alert Functions
+    sendCallCaregiverAlert: async (caregiverName: string, caregiverPhone: string) => {
+        const res = await fetch(`${API_BASE}/patient-alerts/call-caregiver`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                patient_id: PATIENT_ID,
+                caregiver_name: caregiverName,
+                caregiver_phone: caregiverPhone,
+            }),
+        });
+        return res.json();
+    },
+
+    sendEmergencyAlert: async () => {
+        const res = await fetch(`${API_BASE}/patient-alerts/emergency-call`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                patient_id: PATIENT_ID,
+            }),
+        });
+        return res.json();
+    },
+
+    sendNavigationHelpAlert: async (location: {
+        latitude?: number;
+        longitude?: number;
+        address?: string;
+    }) => {
+        const res = await fetch(`${API_BASE}/patient-alerts/navigation-help`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                patient_id: PATIENT_ID,
+                location,
+            }),
+        });
+        return res.json();
+    },
 };
 
 export default api;

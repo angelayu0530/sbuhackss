@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Linking, Alert, Image, Modal, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import socket from '@/services/socket';
 import api from '@/services/api';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -23,14 +22,6 @@ export default function EmergencyScreen() {
     useEffect(() => {
         loadPrimaryContact();
         loadPatientInfo();
-
-        socket.on('contacts_updated', () => {
-            loadPrimaryContact();
-        });
-
-        return () => {
-            socket.off('contacts_updated');
-        };
     }, []);
 
     const loadPrimaryContact = async () => {

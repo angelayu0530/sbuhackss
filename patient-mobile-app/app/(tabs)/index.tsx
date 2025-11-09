@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import socket from '@/services/socket';
 import api from '@/services/api';
 import dayjs from 'dayjs';
 import { useRouter } from 'expo-router';
@@ -20,23 +19,6 @@ export default function HomeScreen() {
   const [schedule, setSchedule] = useState<ScheduleEvent[]>([]);
 
   useEffect(() => {
-    // Connect to Socket.IO
-    socket.connect();
-
-    // Set up real-time listeners
-    socket.on('schedule_changed', () => {
-      loadHomeData();
-      loadSchedule();
-    });
-
-    socket.on('schedule_updated', () => {
-      loadSchedule();
-    });
-
-    socket.on('urgent_message', (data: any) => {
-      Alert.alert('Message from Caregiver', data.message, [{ text: 'OK' }]);
-    });
-
     // Load initial data
     loadHomeData();
     loadSchedule();
@@ -48,9 +30,6 @@ export default function HomeScreen() {
 
     return () => {
       clearInterval(timer);
-      socket.off('schedule_changed');
-      socket.off('schedule_updated');
-      socket.off('urgent_message');
     };
   }, []);
 
@@ -75,17 +54,8 @@ export default function HomeScreen() {
   const handleGoHome = () => {
     Alert.alert(
       'Navigate Home',
-      'This will guide you home and alert your caregiver of your current location.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Start Navigation',
-          onPress: () => {
-            // TODO: Integrate map navigation and send location to caregiver
-            Alert.alert('Navigation Started', 'Your caregiver has been notified.');
-          },
-        },
-      ]
+      'This would guide you to: ' + (homeData?.home_address || 'your home'),
+      [{ text: 'OK' }]
     );
   };
 

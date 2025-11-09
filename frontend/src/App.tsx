@@ -1,14 +1,15 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { AppShell, Container, Grid, Card, Tabs, Loader, Center } from "@mantine/core";
 import dayjs from "dayjs";
-import { HeaderBar, Sidebar, WelcomeCard, WeekCalendar, MonthCalendarModal, RemindersTab, CommunityTab, ChatAssistant, Login, PatientRegistrationModal } from "./components";
+import { HeaderBar, Sidebar, WelcomeCard, WeekCalendar, MonthCalendarModal, RemindersTab, CommunityTab, AnalyticsTab, ChatAssistant, Login, PatientRegistrationModal } from "./components";
 import Settings from "./pages/Settings";
 import type { Lang, CalendarEvent } from "./lib/types";
 import { tDict } from "./lib/i18n";
-import { IconChecklist, IconWorld, IconDeviceMobile } from "@tabler/icons-react";
+import { IconChecklist, IconWorld, IconDeviceMobile, IconChartLine } from "@tabler/icons-react";
 import { useAuth } from "./contexts/useAuth";
 import { appointmentsAPI, type Appointment } from "./services/api";
 import PatientDisplaySettings from "./components/patient-display/PatientDisplaySettings";
+import PatientAlerts from "./components/PatientAlerts";
 
 
 export default function App() {
@@ -110,6 +111,9 @@ export default function App() {
 
   return (
     <>
+      {/* Patient Alert System - Background component */}
+      <PatientAlerts caregiverId={user?.uid} />
+
       <AppShell header={{ height: 64 }} padding="md">
         <HeaderBar lang={lang} setLang={setLang} />
         <AppShell.Main>
@@ -121,7 +125,6 @@ export default function App() {
 
               <Grid.Col span={{ base: 12, md: 7 }}>
                 <WelcomeCard lang={lang} setLang={setLang} />
-                <WeekCalendar lang={lang} events={events} onOpenMonth={() => setCalendarOpen(true)} />
 
                 <Card withBorder radius="md" shadow="sm" p="lg" mt="md">
                   <Tabs defaultValue="reminders" keepMounted={false}>
@@ -131,6 +134,9 @@ export default function App() {
                       </Tabs.Tab>
                       <Tabs.Tab value="community" leftSection={<IconWorld size={16} />}>
                         {t.communityEvents}
+                      </Tabs.Tab>
+                      <Tabs.Tab value="analytics" leftSection={<IconChartLine size={16} />}>
+                        {t.analytics}
                       </Tabs.Tab>
                       <Tabs.Tab value="mobile-settings" leftSection={<IconDeviceMobile size={16} />}>
                         Patient Mobile App
@@ -143,11 +149,16 @@ export default function App() {
                     <Tabs.Panel value="community" pt="md">
                       <CommunityTab />
                     </Tabs.Panel>
+                    <Tabs.Panel value="analytics" pt="md">
+                      <AnalyticsTab lang={lang} />
+                    </Tabs.Panel>
                     <Tabs.Panel value="mobile-settings" pt="md">
-                      <PatientDisplaySettings />
+                      <PatientDisplaySettings lang={lang} />
                     </Tabs.Panel>
                   </Tabs>
                 </Card>
+
+                <WeekCalendar lang={lang} events={events} onOpenMonth={() => setCalendarOpen(true)} />
               </Grid.Col>
 
               <Grid.Col span={{ base: 12, md: 3 }}>

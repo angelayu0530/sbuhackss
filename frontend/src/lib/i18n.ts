@@ -31,6 +31,22 @@ export const tDict = {
     phone: "Phone",
     location: "Location",
     next: "Next",
+
+    // Analytics tab
+    analytics: "Analytics",
+    weeklyAnalytics: "Weekly Analytics",
+    tasksCompleted: "Tasks Completed",
+    patientFeeling: "Patient Feeling (1-10)",
+    alertsTriggered: "Alerts Triggered",
+    totalTasks: "Total Tasks",
+    avgFeeling: "Avg Feeling",
+    totalAlerts: "Total Alerts",
+
+    // Alert status
+    allClear: "All Clear!",
+    noAlertsToday: "hasn't triggered any alerts today",
+    patientDoingWell: "Your patient is doing well! Take this time to rest and recharge. 💚",
+    lastChecked: "Last checked:",
   },
   zh: {
     welcome: "欢迎，海狼",
@@ -62,6 +78,22 @@ export const tDict = {
     phone: "电话",
     location: "地点",
     next: "下次预约",
+
+    // Analytics tab
+    analytics: "数据分析",
+    weeklyAnalytics: "每周数据分析",
+    tasksCompleted: "已完成任务",
+    patientFeeling: "患者感受 (1-10)",
+    alertsTriggered: "触发的警报",
+    totalTasks: "总任务数",
+    avgFeeling: "平均感受",
+    totalAlerts: "总警报数",
+
+    // Alert status
+    allClear: "一切正常！",
+    noAlertsToday: "今天没有触发任何警报",
+    patientDoingWell: "您的患者状况良好！请利用这段时间休息和充电。💚",
+    lastChecked: "最后检查时间：",
   },
   es: {
     welcome: "Bienvenido/a, seawolf",
@@ -93,6 +125,22 @@ export const tDict = {
     phone: "Teléfono",
     location: "Ubicación",
     next: "Próxima cita",
+
+    // Analytics tab
+    analytics: "Análisis",
+    weeklyAnalytics: "Análisis Semanal",
+    tasksCompleted: "Tareas Completadas",
+    patientFeeling: "Estado del Paciente (1-10)",
+    alertsTriggered: "Alertas Activadas",
+    totalTasks: "Total de Tareas",
+    avgFeeling: "Estado Promedio",
+    totalAlerts: "Total de Alertas",
+
+    // Alert status
+    allClear: "¡Todo Bien!",
+    noAlertsToday: "no ha activado ninguna alerta hoy",
+    patientDoingWell: "¡Su paciente está bien! Aproveche este tiempo para descansar y recargar energías. 💚",
+    lastChecked: "Última verificación:",
   },
 } as const;
 
